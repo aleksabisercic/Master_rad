@@ -11,7 +11,7 @@ ws4 = wb.add_sheet("T2 statistika")
 ws5 = wb.add_sheet("T3 statistika")
 ws6 = wb.add_sheet("T statistika")
 ws7 = wb.add_sheet("BTD statistika")
-broj_simulacija = 1
+broj_simulacija = 2
 vreme_otk = []
 vreme_pop = []
 

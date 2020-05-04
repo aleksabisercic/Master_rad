@@ -332,7 +332,7 @@ def Simulacija():
                     if r4 < Ptt1:
                         OBJtt = "1"
                         brOOt1 = brOOt1 + 1
-                        STb = "23"
+                        STt1 = "23"
                         STd = "12"
                         STb = "12"
                         STt2 = "12"
@@ -341,8 +341,9 @@ def Simulacija():
                     elif r4 < (Poo1+Poo2):
                         OBJtt = "2"
                         brOOt2 = brOOt2 + 1
-                        STd = "23"
+                        STt2 = "23"
                         STt1 = "12"
+                        STd = "12"
                         STb = "12"
                         STt3 = "12"
 
@@ -351,6 +352,7 @@ def Simulacija():
                         brOOt3 = brOOt3 + 1
                         STd = "23"
                         STt1 = "12"
+                        STb = "12"
                         STt2 = "12"
                         STb = "12"
                 
@@ -365,8 +367,18 @@ def Simulacija():
             STt2 = "11"
             STt3 = "11"
             STb = "11"
-            STbtd="11"
-            STt="11"
+            STbtd ="11"
+            STt ="11"
+            VrRb = VrRb + 1
+            VrRADb = VrRADd + 1
+            VrRd = VrRd + 1
+            VrRADd = VrRADd + 1
+            VrRt1 = VrRt1 + 1
+            VrRADt1 = VrRADt1 + 1
+            VrRt2 = VrRt2 + 1
+            VrRADt2 = VrRADt2 + 1
+            VrRt3 = VrRt3 + 1
+            VrRADt3 = VrRADt3 + 1
 
             if Bisection_izbor == True: 
                 tp0 = bisection(F_btd_inv,0,108000,1000, L_btd, lambda_t3e, r_vremena_otkaza)
@@ -377,16 +389,8 @@ def Simulacija():
             tp0 = t + tp0
         vremena_popravke.append(tp0)
         
-        VrRb = VrRb + 1
-        VrRADb = VrRADd + 1
-        VrRd = VrRd + 1
-        VrRADd = VrRADd + 1
-        VrRt1 = VrRt1 + 1
-        VrRADt1 = VrRADt1 + 1
-        VrRt2 = VrRt2 + 1
-        VrRADt2 = VrRADt2 + 1
-        VrRt3 = VrRt3 + 1
-        VrRADt3 = VrRADt3 + 1
+		   
+	
         if STb == "12":  
             VrCnRb = VrCnRb + 1
             VrRADb = VrRADb + 1

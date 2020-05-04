@@ -365,6 +365,8 @@ def Simulacija():
             STt2 = "11"
             STt3 = "11"
             STb = "11"
+            STbtd="11"
+            STt="11"
 
             if Bisection_izbor == True: 
                 tp0 = bisection(F_btd_inv,0,108000,1000, L_btd, lambda_t3e, r_vremena_otkaza)
@@ -544,15 +546,18 @@ def Simulacija():
     SrVrRbtd = VrRbtd / brR
     Abtd = VrRbtd / ( VrRbtd + VrOTKb + VrOTKd + VrOTKt)
 
-    list_stat_B = []
-    list_stat_D = []
-    list_stat_T = []
-    list_stat_BTD = []
+    list_stat_B = [SrVrRb , SrVrCnRb , SrVrRADb , SrVrOEb , SrVrOMb , SrVrOOb , brOTKb , SrVrOTKb , Ab , Aeb , Aob , Amb]
+    list_stat_D = [SrVrRd , SrVrCnRd , SrVrRADd , SrVrOOd , brOTKd , SrVrOTKd ,  SrVrOOd , SrVrOTKd, Ad , Aod]
+    list_stat_T1 = [SrVrRt1 , SrVrCnRt1 , SrVrRADt1 , SrVrOEt1 , SrVrOMt1 , SrVrOOt1 ,SrVrOTKt1, brOTKt1, At1, Aet1 , Aot1 , Amt1]
+    list_stat_T2 = [SrVrRt2, SrVrCnRt2, SrVrRADt2, SrVrOEt2, SrVrOMt2, SrVrOOt2, brOTKt2, SrVrOTKt2, At2, Aet2, Aot2, Amt2]
+    list_stat_T3 = [SrVrRt3 , SrVrCnRt3 , SrVrRADt3 , SrVrOEt3 , SrVrOMt3 , SrVrOOt3 , brOTKt3 , SrVrOTKt3 , At3 , Aet3 , Aot3 , Amt3]
+    list_stat_T = [SrVrRt , SrVrCnRt , SrVrRADt , SrVrOTKt , At]
+    list_stat_BTD = [VrRbtd , SrVrRbtd , Abtd]
     
     vremena_otkaza = np.asarray(vremena_otkaza)
     vremena_popravke = np.asarray(vremena_popravke)
     
-    return vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T, list_stat_BTD
+    return vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD
 
 
     

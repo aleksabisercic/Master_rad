@@ -11,9 +11,17 @@ ws4 = wb.add_sheet("T2 statistika")
 ws5 = wb.add_sheet("T3 statistika")
 ws6 = wb.add_sheet("T statistika")
 ws7 = wb.add_sheet("BTD statistika")
-broj_simulacija = 2
+broj_simulacija = 1
 vreme_otk = []
 vreme_pop = []
+
+ws1_kolone = ["Broj simulacije", "SrVrRb" , "SrVrCnRb" , "SrVrRADb" , "SrVrOEb" , 
+                "SrVrOMb" , "SrVrOOb" , "brOTKb" , "SrVrOTKb" , "Ab" , "Aeb" , "Aob" , "Amb"]
+
+k = 0
+for i in ws1_kolone: 
+    ws1.row(0).write(k,i)
+    k+=1   
 
 for i in range(broj_simulacija):
     print(i)
@@ -88,7 +96,7 @@ for i in range(broj_simulacija):
     ws6.row(i+1).write(4, list_stat_T[3])
     ws6.row(i+1).write(5, list_stat_T[4])
     
-    #T2
+    #D
     ws2.row(i+1).write(0,i)
     ws2.row(i+1).write(1, list_stat_D[0])
     ws2.row(i+1).write(2, list_stat_D[1])
@@ -107,4 +115,5 @@ for i in range(broj_simulacija):
     ws7.row(i+1).write(2, list_stat_T2[1])
     ws7.row(i+1).write(3, list_stat_T2[2])
 
-wb.save("Proba.xls")
+wb.save("Rezultati.xls")
+

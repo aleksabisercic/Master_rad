@@ -561,29 +561,12 @@ def Simulacija():
     
     vremena_otkaza = np.asarray(vremena_otkaza)
     vremena_popravke = np.asarray(vremena_popravke)
-	
-    y1 = []
-    x = np.arange(broj_sekundi_u_godini)
-    for t in range(broj_sekundi_u_godini):
-        br = 0
-        if t >=  vremena_otkaza[br] and t < vremena_popravke[br]:
-            y = 0
-        else:
-            y = 1
-        if t == vremena_popravke[br]:
-            br += 1
-        y1.append(y)
-    y1 = np.asarray(y1)
-	
-    plt.fill_between(x, y1, step="pre", alpha=0.4)
-    plt.step(x, y1, label='pre (default)')
-    plt.plot(x, y1, 'C0o', alpha=0)
-
-    plt.show()	
    
     return vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD
 
-Simulacija()
+
+if __name__ == '__main__':
+    Simulacija()
     
         
         

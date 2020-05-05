@@ -2,6 +2,7 @@ import numpy as np
 from Jedna_simulacija import Simulacija 
 import xlwt as xl
 import matplotlib.pyplot as plt
+import pickle
 
 wb = xl.Workbook()
 ws1 = wb.add_sheet("Bager statistika")
@@ -17,11 +18,49 @@ vreme_pop = []
 
 ws1_kolone = ["Broj simulacije", "SrVrRb" , "SrVrCnRb" , "SrVrRADb" , "SrVrOEb" , 
                 "SrVrOMb" , "SrVrOOb" , "brOTKb" , "SrVrOTKb" , "Ab" , "Aeb" , "Aob" , "Amb"]
+ws2_kolone = ["SrVrRd" , "SrVrCnRd" , "SrVrRADd" , "SrVrOOd" , "brOTKd" , "SrVrOTKd" ,  "SrVrOOd" , "SrVrOTKd", "Ad" , "Aod"]
+
+ws3_kolone = ["SrVrRt1" , "SrVrCnRt1" , "SrVrRADt1" , "SrVrOEt1" , "SrVrOMt1" , "SrVrOOt1" ,"SrVrOTKt1", "brOTKt1", "At1", "Aet1" , "Aot1" , "Amt1"]
+ws4_kolone = ["SrVrRt2"," SrVrCnRt2", "SrVrRADt2", "SrVrOEt2", "SrVrOMt2", "SrVrOOt2", "brOTKt2", "SrVrOTKt2", "At2", "Aet2", "Aot2", "Amt2"]
+ws5_kolone = ["SrVrRt3"," SrVrCnRt3", "SrVrRADt3", "SrVrOEt3", "SrVrOMt3", "SrVrOOt3", "brOTKt3", "SrVrOTKt3", "At3", "Aet3", "Aot3", "Amt3"]
+ws6_kolone = ["SrVrRt" , "SrVrCnRt" , "SrVrRADt" , "SrVrOTKt" , "At"]
+ws7_kolone = ["VrRbtd" , "SrVrRbtd" , "Abtd"]
+
 
 k = 0
 for i in ws1_kolone: 
     ws1.row(0).write(k,i)
     k+=1   
+
+k = 0    
+for i in ws2_kolone: 
+    ws2.row(0).write(k,i)
+    k+=1
+
+k = 0
+for i in ws3_kolone: 
+    ws3.row(0).write(k,i)
+    k+=1
+
+k = 0	
+for i in ws4_kolone: 
+    ws4.row(0).write(k,i)
+    k+=1	
+for i in ws5_kolone: 
+    ws5.row(0).write(k,i)
+    k+=1
+
+k = 0	
+for i in ws6_kolone: 
+    ws7.row(0).write(k,i)
+    k+=1
+
+k = 0    
+for i in ws6_kolone: 
+    ws7.row(0).write(k,i)
+    k+=1
+
+
 
 for i in range(broj_simulacija):
     print(i)
@@ -115,29 +154,12 @@ for i in range(broj_simulacija):
     ws7.row(i+1).write(1, list_stat_T2[0])
     ws7.row(i+1).write(2, list_stat_T2[1])
     ws7.row(i+1).write(3, list_stat_T2[2])
-	
-    
-    #x=np.arange(31536000)
-    #y1=[]
-    #for t in range(x)
-	#	if t >= vreme_otkaza[br] and t < vreme_popravke[br]:
-	#			 y = 0
-	#	else:
-	#		 	 y=1
-	#	y1.append(y)
-	#	if t == vreme_popravke[br]:
-	#		 br += 1	 
-				 		 
-    y=np.asarray(y)
-    fig,ax = plt.subplots()
-    ax.plot(x, y)
-	
-	
-    ax.set(xlabel='time (s)', ylabel='voltage (mV)',
-	       title='About as simple as it gets, folks')
-    ax.grid()
-	
-    plt.show()
 
-wb.save("Rezultati.xls")
+with open('Rezultati/vremena_otkaza.pkl', 'wb') as f3:
+    pickle.dump(vreme_otk, f3)
+
+with open('Rezultati/vremena_popravki.pkl', 'wb') as f4:
+    pickle.dump(vreme_pop, f4)
+
+wb.save("Rezultati/rezultati.xls")
 

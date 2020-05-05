@@ -1,7 +1,7 @@
 import numpy as np
-import scipy as sp
 from Jedna_simulacija import Simulacija 
 import xlwt as xl
+import matplotlib.pyplot as plt
 
 wb = xl.Workbook()
 ws1 = wb.add_sheet("Bager statistika")
@@ -28,6 +28,7 @@ for i in range(broj_simulacija):
     vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD = Simulacija()
     vreme_otk.append(vremena_otkaza)
     vreme_pop.append(vremena_popravke)
+
 	#BAGER
     ws1.row(i+1).write(0,i)
     ws1.row(i+1).write(1, list_stat_B[0])
@@ -114,6 +115,29 @@ for i in range(broj_simulacija):
     ws7.row(i+1).write(1, list_stat_T2[0])
     ws7.row(i+1).write(2, list_stat_T2[1])
     ws7.row(i+1).write(3, list_stat_T2[2])
+	
+    
+    #x=np.arange(31536000)
+    #y1=[]
+    #for t in range(x)
+	#	if t >= vreme_otkaza[br] and t < vreme_popravke[br]:
+	#			 y = 0
+	#	else:
+	#		 	 y=1
+	#	y1.append(y)
+	#	if t == vreme_popravke[br]:
+	#		 br += 1	 
+				 		 
+    y=np.asarray(y)
+    fig,ax = plt.subplots()
+    ax.plot(x, y)
+	
+	
+    ax.set(xlabel='time (s)', ylabel='voltage (mV)',
+	       title='About as simple as it gets, folks')
+    ax.grid()
+	
+    plt.show()
 
 wb.save("Rezultati.xls")
 

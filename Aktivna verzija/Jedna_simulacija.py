@@ -5,9 +5,8 @@ Created on Thu Apr 30 23:46:46 2020
 @author: Freedom
 """
 import numpy as np
-import scipy as sp
 from scipy.optimize import fsolve
-
+import matplotlib.pyplot as plt
 """ FUNKCIJE KOJE SE KORISTE U OKVIRU PROCEDURE """
 
 def Simulacija(): 
@@ -185,10 +184,11 @@ def Simulacija():
     else:
         tp0 = fsolve(F_btd_inv,0,args = (L_btd, lambda_t3e, r_vremena_otkaza))
         tp0 = np.round(tp0)
+    vremena_otkaza.append(tp0)
 
     for t in range(1,broj_sekundi_u_godini,1):   
         if t == tp0:
-            vremena_otkaza.append(tp0)
+            
             brR = brR + 1
             r = np.random.uniform(low=0.0, high=1.0,size=None)
 
@@ -338,7 +338,7 @@ def Simulacija():
                         STt2 = "12"
                         STt3 = "12"
 
-                    elif r4 < (Poo1+Poo2):
+                    elif r4 < (Ptt1+Ptt2):
                         OBJtt = "2"
                         brOOt2 = brOOt2 + 1
                         STt2 = "23"
@@ -356,12 +356,13 @@ def Simulacija():
                         STt2 = "12"
                         STb = "12"
                 
-                r41 = np.random.uniform(low=0.0, high=1.0,size=None)
-                DT = -(1/mtxo)*np.log(r41) 
-                DT = np.round(DT)
-                topr = t + DT
+                    r41 = np.random.uniform(low=0.0, high=1.0,size=None)
+                    DT = -(1/mtxo)*np.log(r41) 
+                    DT = np.round(DT)
+                    topr = t + DT
 
-        if t==topr:    
+        if t==topr:
+            vremena_popravke.append(topr)   
             STd = "11"
             STt1 = "11"
             STt2 = "11"
@@ -387,7 +388,7 @@ def Simulacija():
             
             tp0 = np.round(tp0)
             tp0 = t + tp0
-        vremena_popravke.append(tp0)
+            vremena_otkaza.append(tp0)
         
 		   
 	
@@ -560,10 +561,29 @@ def Simulacija():
     
     vremena_otkaza = np.asarray(vremena_otkaza)
     vremena_popravke = np.asarray(vremena_popravke)
-    
+	
+    y1 = []
+    x = np.arange(broj_sekundi_u_godini)
+    for t in range(broj_sekundi_u_godini):
+        br = 0
+        if t >=  vremena_otkaza[br] and t < vremena_popravke[br]:
+            y = 0
+        else:
+            y = 1
+        if t == vremena_popravke[br]:
+            br += 1
+        y1.append(y)
+    y1 = np.asarray(y1)
+	
+    plt.fill_between(x, y1, step="pre", alpha=0.4)
+    plt.step(x, y1, label='pre (default)')
+    plt.plot(x, y1, 'C0o', alpha=0)
+
+    plt.show()	
+   
     return vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD
 
-
+Simulacija()
     
         
         

@@ -162,6 +162,14 @@ def Simulacija():
     brOTKt3=0
     brCnRb=0
     topr = 0 
+    VrRbtd=0
+    brCnRd=0
+    brCnRt1=0
+    brCnRt2=0
+    brCnRt3=0
+    SrVrRbt = 0
+    Abt = 0	 
+    VrRbt = 0  
 
     STbtd="11"
     STb="11"
@@ -170,6 +178,7 @@ def Simulacija():
     STt1="11"
     STt2="11"
     STt3="11"
+	
     brR=0
 
     vremena_otkaza = []
@@ -321,11 +330,7 @@ def Simulacija():
                     DT = -(1/mdo)*np.log(r32)
                     DT = np.round(DT)
                     topr = t + DT
-                    STt1 = "12"
-                    STb = "12"
-                    STt2 = "12"
-                    STt3 = "12"
-
+                    
                 elif r3 <= (1):
                     OBJoo = "3"
                     r4 = np.random.uniform(low=0.0, high=1.0,size=None)
@@ -370,7 +375,7 @@ def Simulacija():
             STt3 = "11"
             STb = "11"
             STbtd ="11"
-
+		
             if Bisection_izbor == True: 
                 tp0 = bisection(F_btd_inv,0,108000,1000, L_btd, lambda_t3e, r_vremena_otkaza)
             else:
@@ -455,6 +460,10 @@ def Simulacija():
         if STd == "23":
             VrOOd = VrOOd + 1
             VrOTKd = VrOTKd + 1
+        if STb == "11" and  STd == "11" and STt1 == "11" and  STt1 == "11" and STt2 == "11" and STt3 == "11":
+            VrRbtd = VrRbtd + 1
+   
+
 
         # if t%vreme_ispisa == 0:
         #     print(t,tp0,topr)
@@ -561,19 +570,24 @@ def Simulacija():
     VrRbtd = VrRb #**proveriti
     SrVrRbtd = VrRbtd / brR
     Abtd = VrRbtd / ( VrRbtd + VrOTKb + VrOTKd + VrOTKt)
+	#Statistika bt_sistema
+    SrVrRbt = SrVrRbtd 
+    VrRbt = VrRbtd
+    Abt = Abtd	
 
-    list_stat_B = [SrVrRb , SrVrCnRb , SrVrRADb , SrVrOEb , SrVrOMb , SrVrOOb , brOTKb , SrVrOTKb , Ab , Aeb , Aob , Amb]
-    list_stat_D = [SrVrRd , SrVrCnRd , SrVrRADd , SrVrOOd , brOTKd , SrVrOTKd ,  SrVrOOd , SrVrOTKd, Ad , Aod]
-    list_stat_T1 = [SrVrRt1 , SrVrCnRt1 , SrVrRADt1 , SrVrOEt1 , SrVrOMt1 , SrVrOOt1 ,SrVrOTKt1, brOTKt1, At1, Aet1 , Aot1 , Amt1]
-    list_stat_T2 = [SrVrRt2, SrVrCnRt2, SrVrRADt2, SrVrOEt2, SrVrOMt2, SrVrOOt2, brOTKt2, SrVrOTKt2, At2, Aet2, Aot2, Amt2]
-    list_stat_T3 = [SrVrRt3 , SrVrCnRt3 , SrVrRADt3 , SrVrOEt3 , SrVrOMt3 , SrVrOOt3 , brOTKt3 , SrVrOTKt3 , At3 , Aet3 , Aot3 , Amt3]
+    list_stat_B = [brCnRb, SrVrRb , SrVrCnRb , SrVrRADb , SrVrOEb , SrVrOMb , SrVrOOb , brOTKb , SrVrOTKb , Ab , Aeb , Aob , Amb]
+    list_stat_D = [brCnRd, SrVrRd , SrVrCnRd , SrVrRADd , SrVrOOd , brOTKd , SrVrOTKd ,  SrVrOOd , SrVrOTKd, Ad , Aod]
+    list_stat_T1 = [brCnRt1, SrVrRt1 , SrVrCnRt1 , SrVrRADt1 , SrVrOEt1 , SrVrOMt1 , SrVrOOt1 , brOTKt1 , SrVrOTKt1,  At1, Aet1 , Aot1 , Amt1]
+    list_stat_T2 = [brCnRt2, SrVrRt2, SrVrCnRt2, SrVrRADt2, SrVrOEt2, SrVrOMt2, SrVrOOt2, brOTKt2, SrVrOTKt2, At2, Aet2, Aot2, Amt2]
+    list_stat_T3 = [brCnRt3, SrVrRt3 , SrVrCnRt3 , SrVrRADt3 , SrVrOEt3 , SrVrOMt3 , SrVrOOt3 , brOTKt3 , SrVrOTKt3 , At3 , Aet3 , Aot3 , Amt3]
     list_stat_T = [SrVrRt , SrVrCnRt , SrVrRADt , SrVrOTKt , At]
     list_stat_BTD = [VrRbtd , SrVrRbtd , Abtd]
+    lista_stat_BT = [VrRbt , SrVrRbt , Abt]
     
     vremena_otkaza = np.asarray(vremena_otkaza)
     vremena_popravke = np.asarray(vremena_popravke)
    
-    return vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD
+    return vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD, lista_stat_BT
 
 
 if __name__ == '__main__':

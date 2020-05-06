@@ -160,8 +160,14 @@ def Simulacija():
     brOOt3=0
     VrOTKt3=0
     brOTKt3=0
-    topr = 0 
-
+    topr = 0
+    VrRbtd = 0 
+    VrRbt = 0
+    brCnRb=0
+    brCnRt1=0
+    brCnRt2=0
+    brCnRt3=0
+	
     STbtd="11"
     STb="11"
     STd="11"
@@ -351,9 +357,9 @@ def Simulacija():
                     elif r4 <= 1:
                         OBJtt ="3"
                         brOOt3 = brOOt3 + 1
-                        STd = "23"
+                        STt3 = "23"
                         STt1 = "12"
-                        STb = "12"
+                        STd = "12"
                         STt2 = "12"
                         STb = "12"
                 
@@ -384,6 +390,7 @@ def Simulacija():
         if STb == '11':
             VrRb = VrRb + 1
             VrRADb = VrRADb + 1
+            VrRbt = VrRbt + 1
         
         if STd == "11":
             VrRd = VrRd + 1
@@ -455,7 +462,9 @@ def Simulacija():
         if STd == "23":
             VrOOd = VrOOd + 1
             VrOTKd = VrOTKd + 1
-
+        if STb == "11" and  STd == "11" and STt1 == "11" and  STt1 == "11" and STt2 == "11" and STt3 == "11":
+            VrRbtd = VrRbtd + 1
+		
         # if t%vreme_ispisa == 0:
         #     print(t,tp0,topr)
 
@@ -463,21 +472,21 @@ def Simulacija():
     """ PROVERA """
     if ( VrRt1 == VrRt2 and VrRt1 == VrRt3 ):
         VrRt = VrRt1
-        VrCnRt = VrOEb + VrOMb + VrOOb + VrOOd
-        brCnRt = brOEb + brOMb + brOOb + brOOd 
+        VrCnRt = VrOEb + VrOMb + VrOOb 
+        brCnRt = brOEb + brOMb + brOOb  
         VrRADt = VrRt + VrCnRt
         VrOTKt = VrOTKt1 + VrOTKt2 + VrOTKt3
         brOTKt = brOEt1 + brOMt1 + brOOt1 + brOEt2 + brOMt2 + brOOt2 + brOEt3 + brOMt3 + brOOt3
-        brCnRb = brOOd + brOTKt
+        brCnRb = brOTKt
         brCnRd = brOEb + brOMb + brOOb + brOTKt
     else:
         print("Greska_Kraj")
     """ RACUNANJE STATISTIKA ZA JEDNU SIMULACIJU """
     #bager statistika
 
-    SrVrRb = podeli(VrRb,brR) 
+    SrVrRb = podeli(VrRb,(brR-brOOd)) 
     SrVrCnRb = podeli(VrCnRb, brCnRb)
-    SrVrRADb = podeli(VrRADb, ( brR + brCnRb ))
+    SrVrRADb = podeli(VrRADb, ( (brR-brOOd) + brCnRb ))
     SrVrOEb = podeli(VrOEb, brOEb)
     SrVrOMb = podeli(VrOMb,brOMb)
     SrVrOOb = podeli(VrOOb,brOOb)
@@ -502,17 +511,17 @@ def Simulacija():
     Aod = VrRADd / ( VrRADd + VrOOd )
 
     #Trakasti transporteri statistika
-    SrVrRt = VrRt / brR
+    SrVrRt = VrRt / (brR-brOOd)
     SrVrCnRt = podeli(VrCnRt, brCnRt)
-    SrVrRADt = VrRADt / ( brR + brCnRt )
+    SrVrRADt = VrRADt / ( (brR-brOOd) + brCnRt )
     SrVrOTKt = podeli(VrOTKt, brOTKt)
     At = VrRADt / ( VrRADt + VrOTKt )
 
     #Trakasti transporter 1 stat.
-    brCnRt1 = brOTKb + brOTKd + brOEt2 + brOMt2 + brOOt2 + brOEt3 + brOMt3 + brOOt3
-    SrVrRt1 = VrRt1 / brR 
+    brCnRt1 = brOTKb + brOEt2 + brOMt2 + brOOt2 + brOEt3 + brOMt3 + brOOt3
+    SrVrRt1 = VrRt1 / (brR-brOOd) 
     SrVrCnRt1 = VrCnRt1 / brCnRt1
-    SrVrRADt1 = VrRADt1 / ( brR + brCnRt1 )
+    SrVrRADt1 = VrRADt1 / ( (brR-brOOd) + brCnRt1 )
     SrVrOEt1 = podeli(VrOEt1, brOEt1) # ovde mi izbacuje gresku deljenje sa nulom ali moguce da nije doslo do otkaza Elektro motora T1
     SrVrOMt1 = podeli(VrOMt1, brOMt1)
     SrVrOOt1 = podeli(VrOOt1, brOOt1)
@@ -525,10 +534,10 @@ def Simulacija():
 
     #Trakasti transporter 2 stat.
 
-    brCnRt2 = brOTKb + brOTKd + brOEt1 + brOMt1 + brOOt1 + brOEt3 + brOMt3 + brOOt3
-    SrVrRt2 = VrRt2 / brR 
+    brCnRt2 = brOTKb  + brOEt1 + brOMt1 + brOOt1 + brOEt3 + brOMt3 + brOOt3
+    SrVrRt2 = VrRt2 / (brR-brOOd) 
     SrVrCnRt2 = VrCnRt2 / brCnRt2
-    SrVrRADt2 = VrRADt2 / ( brR + brCnRt2 )
+    SrVrRADt2 = VrRADt2 / ( (brR-brOOd) + brCnRt2 )
     SrVrOEt2 = podeli(VrOEt2, brOEt2)
     SrVrOMt2 = podeli(VrOMt2, brOMt2)
     SrVrOOt2 = podeli(VrOOt2, brOOt2)
@@ -541,10 +550,10 @@ def Simulacija():
     
     #Trakasti transporter 2 stat.
 
-    brCnRt3 = brOTKb + brOTKd + brOEt1 + brOMt1 + brOOt1 + brOEt2 + brOMt2 + brOOt2
-    SrVrRt3 = VrRt3 / brR 
+    brCnRt3 = brOTKb + brOEt1 + brOMt1 + brOOt1 + brOEt2 + brOMt2 + brOOt2
+    SrVrRt3 = VrRt3 / (brR-brOOd) 
     SrVrCnRt3 = VrCnRt3 / brCnRt3
-    SrVrRADt3 = VrRADt3 / ( brR + brCnRt3 )
+    SrVrRADt3 = VrRADt3 / ( (brR-brOOd) + brCnRt3 )
     SrVrOEt3 = podeli(VrOEt3, brOEt3)
     SrVrOMt3 = podeli(VrOMt3, brOMt3)
     SrVrOOt3 = podeli(VrOOt3, brOOt3)
@@ -555,23 +564,29 @@ def Simulacija():
     Amt3 = VrRADt3 / ( VrRADt3 + VrOMt3 )
     Aot3 = VrRADt3 / ( VrRADt3 + VrOOt3 )
 
-    #Statistika sistema
-    VrRbtd = VrRb #**proveriti
+    #Statistika btd_sistema
+    
     SrVrRbtd = VrRbtd / brR
     Abtd = VrRbtd / ( VrRbtd + VrOTKb + VrOTKd + VrOTKt)
+	
+	#Statistika bt_sistema
+    SrVrRbt = VrRbt / (brR-brOOd)
+    Abt = VrRbtd / (  VrRbt + VrOTKb + VrOTKt)
+	
 
-    list_stat_B = [SrVrRb , SrVrCnRb , SrVrRADb , SrVrOEb , SrVrOMb , SrVrOOb , brOTKb , SrVrOTKb , Ab , Aeb , Aob , Amb]
-    list_stat_D = [SrVrRd , SrVrCnRd , SrVrRADd , SrVrOOd , brOTKd , SrVrOTKd ,  SrVrOOd , SrVrOTKd, Ad , Aod]
-    list_stat_T1 = [SrVrRt1 , SrVrCnRt1 , SrVrRADt1 , SrVrOEt1 , SrVrOMt1 , SrVrOOt1 ,SrVrOTKt1, brOTKt1, At1, Aet1 , Aot1 , Amt1]
-    list_stat_T2 = [SrVrRt2, SrVrCnRt2, SrVrRADt2, SrVrOEt2, SrVrOMt2, SrVrOOt2, brOTKt2, SrVrOTKt2, At2, Aet2, Aot2, Amt2]
-    list_stat_T3 = [SrVrRt3 , SrVrCnRt3 , SrVrRADt3 , SrVrOEt3 , SrVrOMt3 , SrVrOOt3 , brOTKt3 , SrVrOTKt3 , At3 , Aet3 , Aot3 , Amt3]
+    list_stat_B = [brCnRb, SrVrRb , SrVrCnRb , SrVrRADb , SrVrOEb , SrVrOMb , SrVrOOb , brOTKb , SrVrOTKb , Ab , Aeb , Aob , Amb]
+    list_stat_D = [brCnRb, SrVrRd , SrVrCnRd , SrVrRADd , SrVrOOd , brOTKd , SrVrOTKd ,  SrVrOOd , SrVrOTKd, Ad , Aod]
+    list_stat_T1 = [brCnRt1, SrVrRt1 , SrVrCnRt1 , SrVrRADt1 , SrVrOEt1 , SrVrOMt1 , SrVrOOt1 , brOTKt1 , SrVrOTKt1,  At1, Aet1 , Aot1 , Amt1]
+    list_stat_T2 = [brCnRt2, SrVrRt2, SrVrCnRt2, SrVrRADt2, SrVrOEt2, SrVrOMt2, SrVrOOt2, brOTKt2, SrVrOTKt2, At2, Aet2, Aot2, Amt2]
+    list_stat_T3 = [brCnRt3, SrVrRt3 , SrVrCnRt3 , SrVrRADt3 , SrVrOEt3 , SrVrOMt3 , SrVrOOt3 , brOTKt3 , SrVrOTKt3 , At3 , Aet3 , Aot3 , Amt3]
     list_stat_T = [SrVrRt , SrVrCnRt , SrVrRADt , SrVrOTKt , At]
     list_stat_BTD = [VrRbtd , SrVrRbtd , Abtd]
-    
+    lista_stat_BT = [VrRbt , SrVrRbt , Abt]
+	
     vremena_otkaza = np.asarray(vremena_otkaza)
     vremena_popravke = np.asarray(vremena_popravke)
    
-    return vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD
+    return vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD, lista_stat_BT
 
 
 if __name__ == '__main__':

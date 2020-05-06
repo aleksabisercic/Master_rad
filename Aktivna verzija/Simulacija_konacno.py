@@ -1,5 +1,5 @@
 import numpy as np
-from Jedna_simulacija import Simulacija 
+from Jedna_simulacija_BT_D import Simulacija 
 import xlwt as xl
 import matplotlib.pyplot as plt
 import pickle
@@ -12,20 +12,23 @@ ws4 = wb.add_sheet("T2 statistika")
 ws5 = wb.add_sheet("T3 statistika")
 ws6 = wb.add_sheet("T statistika")
 ws7 = wb.add_sheet("BTD statistika")
-broj_simulacija = 3
+ws8 = wb.add_sheet("BT statistika")
+
+broj_simulacija = 1
 name = "BTD"
 vreme_otk = []
 vreme_pop = []
 
-ws1_kolone = ["Broj simulacije", "SrVrRb" , "SrVrCnRb" , "SrVrRADb" , "SrVrOEb" , 
+ws1_kolone = ["Broj simulacije","brCnRb", "SrVrRb" , "SrVrCnRb" , "SrVrRADb" , "SrVrOEb" , 
                 "SrVrOMb" , "SrVrOOb" , "brOTKb" , "SrVrOTKb" , "Ab" , "Aeb" , "Aob" , "Amb"]
-ws2_kolone = ["SrVrRd" , "SrVrCnRd" , "SrVrRADd" , "SrVrOOd" , "brOTKd" , "SrVrOTKd" ,  "SrVrOOd" , "SrVrOTKd", "Ad" , "Aod"]
+ws2_kolone = ["Broj simulacije", "brCnRd", "SrVrRd" , "SrVrCnRd" , "SrVrRADd" , "SrVrOOd" , "brOTKd" , "SrVrOTKd" ,  "SrVrOOd" , "SrVrOTKd", "Ad" , "Aod"]
 
-ws3_kolone = ["SrVrRt1" , "SrVrCnRt1" , "SrVrRADt1" , "SrVrOEt1" , "SrVrOMt1" , "SrVrOOt1" ,"SrVrOTKt1", "brOTKt1", "At1", "Aet1" , "Aot1" , "Amt1"]
-ws4_kolone = ["SrVrRt2"," SrVrCnRt2", "SrVrRADt2", "SrVrOEt2", "SrVrOMt2", "SrVrOOt2", "brOTKt2", "SrVrOTKt2", "At2", "Aet2", "Aot2", "Amt2"]
-ws5_kolone = ["SrVrRt3"," SrVrCnRt3", "SrVrRADt3", "SrVrOEt3", "SrVrOMt3", "SrVrOOt3", "brOTKt3", "SrVrOTKt3", "At3", "Aet3", "Aot3", "Amt3"]
-ws6_kolone = ["SrVrRt" , "SrVrCnRt" , "SrVrRADt" , "SrVrOTKt" , "At"]
-ws7_kolone = ["VrRbtd" , "SrVrRbtd" , "Abtd"]
+ws3_kolone = ["Broj simulacije", "brCnRt1","SrVrRt1" , "SrVrCnRt1" , "SrVrRADt1" , "SrVrOEt1" , "SrVrOMt1" , "SrVrOOt1" ,"brOTKt1","SrVrOTKt1", "At1", "Aet1" , "Aot1" , "Amt1"]
+ws4_kolone = ["Broj simulacije", "brCnRt2","SrVrRt2"," SrVrCnRt2", "SrVrRADt2", "SrVrOEt2", "SrVrOMt2", "SrVrOOt2", "brOTKt2", "SrVrOTKt2", "At2", "Aet2", "Aot2", "Amt2"]
+ws5_kolone = ["Broj simulacije", "brCnRt3","SrVrRt3"," SrVrCnRt3", "SrVrRADt3", "SrVrOEt3", "SrVrOMt3", "SrVrOOt3", "brOTKt3", "SrVrOTKt3", "At3", "Aet3", "Aot3", "Amt3"]
+ws6_kolone = ["Broj simulacije", "SrVrRt" , "SrVrCnRt" , "SrVrRADt" , "SrVrOTKt" , "At"]
+ws7_kolone = ["Broj simulacije", "VrRbtd" , "SrVrRbtd" , "Abtd"]
+ws8_kolone = ["Broj simulacije", "VrRbt" , "SrVrRbt" , "Abt"]
 
 
 k = 0
@@ -63,11 +66,15 @@ for i in ws7_kolone:
     ws7.row(0).write(k,i)
     k+=1
 
+k = 0    
+for i in ws8_kolone: 
+    ws8.row(0).write(k,i)
+    k+=1
 
 
 for i in range(broj_simulacija):
     print(i+1)
-    vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD = Simulacija()
+    vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD, list_stat_BT  = Simulacija()
     vreme_otk.append(vremena_otkaza)
     vreme_pop.append(vremena_popravke)
 
@@ -85,6 +92,7 @@ for i in range(broj_simulacija):
     ws1.row(i+1).write(10, list_stat_B[9])
     ws1.row(i+1).write(11, list_stat_B[10])
     ws1.row(i+1).write(12, list_stat_B[11])
+    ws1.row(i+1).write(13, list_stat_B[12])
     
     #T1
     ws3.row(i+1).write(0,i)
@@ -100,6 +108,7 @@ for i in range(broj_simulacija):
     ws3.row(i+1).write(10, list_stat_T1[9])
     ws3.row(i+1).write(11, list_stat_T1[10])
     ws3.row(i+1).write(12, list_stat_T1[11])
+    ws3.row(i+1).write(13, list_stat_T1[12])
     
 	#T2
     ws4.row(i+1).write(0,i)
@@ -115,6 +124,7 @@ for i in range(broj_simulacija):
     ws4.row(i+1).write(10, list_stat_T2[9])
     ws4.row(i+1).write(11, list_stat_T2[10])
     ws4.row(i+1).write(12, list_stat_T2[11])
+    ws4.row(i+1).write(13, list_stat_T2[12])
     
 	#T3
     ws5.row(i+1).write(0,i)
@@ -130,7 +140,7 @@ for i in range(broj_simulacija):
     ws5.row(i+1).write(10, list_stat_T3[9])
     ws5.row(i+1).write(11, list_stat_T3[10])
     ws5.row(i+1).write(12, list_stat_T3[11])
-    
+    ws5.row(i+1).write(13, list_stat_T3[12])    
 	#T
     ws6.row(i+1).write(0,i)
     ws6.row(i+1).write(1, list_stat_T[0])
@@ -151,18 +161,25 @@ for i in range(broj_simulacija):
     ws2.row(i+1).write(8, list_stat_D[7])
     ws2.row(i+1).write(9, list_stat_D[8])
     ws2.row(i+1).write(10, list_stat_D[9])
+    ws2.row(i+1).write(11, list_stat_D[10])	
     
 	#BTD
     ws7.row(i+1).write(0,i)
     ws7.row(i+1).write(1, list_stat_T2[0])
     ws7.row(i+1).write(2, list_stat_T2[1])
     ws7.row(i+1).write(3, list_stat_T2[2])
+	
+	#BT
+    ws8.row(i+1).write(0,i)
+    ws8.row(i+1).write(1, list_stat_T2[0])
+    ws8.row(i+1).write(2, list_stat_T2[1])
+    ws8.row(i+1).write(3, list_stat_T2[2])
 
-with open('Rezultati/vremena_otkaza.pkl', 'wb') as f3:
-    pickle.dump(vreme_otk, f3)
+#with open('Rezultati/vremena_otkaza.pkl', 'wb') as f3:
+    #pickle.dump(vreme_otk, f3)
 
-with open('Rezultati/vremena_popravki.pkl', 'wb') as f4:
-    pickle.dump(vreme_pop, f4)
+#with open('Rezultati/vremena_popravki.pkl', 'wb') as f4:
+    #pickle.dump(vreme_pop, f4)
 
-wb.save("Rezultati/rezultati_{}_{}.xls".format(broj_simulacija, name))
+wb.save("Rezultati/rezultati1_{}_{}.xls".format(broj_simulacija, name))
 

@@ -245,6 +245,7 @@ def Simulacija():
                     STt1 = "12"
                     STt2 = "12"
                     STb = "12"
+                    
             elif r < (Pvo1+Pvo2):
                 Vrotk="2"
                 r2=np.random.uniform(low=0.0, high=1.0,size=None)

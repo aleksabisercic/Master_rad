@@ -160,6 +160,7 @@ def Simulacija():
     brOOt3=0
     VrOTKt3=0
     brOTKt3=0
+    brCnRb=0
     topr = 0 
 
     STbtd="11"
@@ -350,9 +351,9 @@ def Simulacija():
                     elif r4 <= 1:
                         OBJtt ="3"
                         brOOt3 = brOOt3 + 1
-                        STd = "23"
+                        STt3 = "23"
                         STt1 = "12"
-                        STb = "12"
+                        STd = "12"
                         STt2 = "12"
                         STb = "12"
                 
@@ -460,7 +461,7 @@ def Simulacija():
 
 
     """ PROVERA """
-    if ( VrRt1 == VrRt2 and VrRt1 == VrRt3 ):
+    if (VrRt1 == VrRt2 and VrRt1 == VrRt3):
         VrRt = VrRt1
         VrCnRt = VrOEb + VrOMb + VrOOb + VrOOd
         brCnRt = brOEb + brOMb + brOOb + brOOd 
@@ -470,13 +471,15 @@ def Simulacija():
         brCnRb = brOOd + brOTKt
         brCnRd = brOEb + brOMb + brOOb + brOTKt
     else:
+        print(VrRt1, VrRt2, VrRt3)
         print("Greska_Kraj")
+
     """ RACUNANJE STATISTIKA ZA JEDNU SIMULACIJU """
     #bager statistika
 
     SrVrRb = podeli(VrRb,brR) 
     SrVrCnRb = podeli(VrCnRb, brCnRb)
-    SrVrRADb = podeli(VrRADb, ( brR + brCnRb ))
+    SrVrRADb = podeli(VrRADb, (brR + brCnRb))
     SrVrOEb = podeli(VrOEb, brOEb)
     SrVrOMb = podeli(VrOMb,brOMb)
     SrVrOOb = podeli(VrOOb,brOOb)

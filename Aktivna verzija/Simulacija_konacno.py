@@ -12,7 +12,8 @@ ws4 = wb.add_sheet("T2 statistika")
 ws5 = wb.add_sheet("T3 statistika")
 ws6 = wb.add_sheet("T statistika")
 ws7 = wb.add_sheet("BTD statistika")
-broj_simulacija = 1
+broj_simulacija = 3
+name = "BTD"
 vreme_otk = []
 vreme_pop = []
 
@@ -65,13 +66,13 @@ for i in ws7_kolone:
 
 
 for i in range(broj_simulacija):
-    print(i)
+    print(i+1)
     vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD = Simulacija()
     vreme_otk.append(vremena_otkaza)
     vreme_pop.append(vremena_popravke)
 
 	#BAGER
-    ws1.row(i+1).write(0,i)
+    ws1.row(i+1).write(0,i+1)
     ws1.row(i+1).write(1, list_stat_B[0])
     ws1.row(i+1).write(2, list_stat_B[1])
     ws1.row(i+1).write(3, list_stat_B[2])
@@ -163,5 +164,5 @@ with open('Rezultati/vremena_otkaza.pkl', 'wb') as f3:
 with open('Rezultati/vremena_popravki.pkl', 'wb') as f4:
     pickle.dump(vreme_pop, f4)
 
-wb.save("Rezultati/rezultati.xls")
+wb.save("Rezultati/rezultati_{}_{}.xls".format(broj_simulacija, name))
 

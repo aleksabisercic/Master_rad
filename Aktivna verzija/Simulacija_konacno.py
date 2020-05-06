@@ -46,6 +46,8 @@ k = 0
 for i in ws4_kolone: 
     ws4.row(0).write(k,i)
     k+=1	
+
+k=0
 for i in ws5_kolone: 
     ws5.row(0).write(k,i)
     k+=1
@@ -54,7 +56,7 @@ k = 0
 for i in ws6_kolone: 
     ws6.row(0).write(k,i)
     k+=1
-0
+
 k = 0    
 for i in ws7_kolone: 
     ws7.row(0).write(k,i)

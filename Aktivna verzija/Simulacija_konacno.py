@@ -175,11 +175,11 @@ for i in range(broj_simulacija):
     ws8.row(i+1).write(2, list_stat_T2[1])
     ws8.row(i+1).write(3, list_stat_T2[2])
 
-#with open('Rezultati/vremena_otkaza.pkl', 'wb') as f3:
-    #pickle.dump(vreme_otk, f3)
+with open('Rezultati/vremena_otkaza.pkl', 'wb') as f3:
+    pickle.dump(vreme_otk, f3)
 
-#with open('Rezultati/vremena_popravki.pkl', 'wb') as f4:
-    #pickle.dump(vreme_pop, f4)
+with open('Rezultati/vremena_popravki.pkl', 'wb') as f4:
+    pickle.dump(vreme_pop, f4)
 
-wb.save("Rezultati/rezultati1_{}_{}.xls".format(broj_simulacija, name))
+wb.save("Rezultati/rezultati_{}_{}.xls".format(broj_simulacija, name))
 

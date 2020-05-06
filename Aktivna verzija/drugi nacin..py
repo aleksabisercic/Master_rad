@@ -15,3 +15,5 @@ ax.set(xlabel='time (s)', ylabel='voltage (mV)',
 ax.grid()
 
 plt.show()
+
+

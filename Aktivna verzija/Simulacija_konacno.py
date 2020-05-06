@@ -52,11 +52,11 @@ for i in ws5_kolone:
 
 k = 0	
 for i in ws6_kolone: 
-    ws7.row(0).write(k,i)
+    ws6.row(0).write(k,i)
     k+=1
-
+0
 k = 0    
-for i in ws6_kolone: 
+for i in ws7_kolone: 
     ws7.row(0).write(k,i)
     k+=1
 

@@ -1,5 +1,6 @@
 import numpy as np
-from Jedna_simulacija_BT_D import Simulacija 
+from Jedna_simulacija_BT_D import Simulacija_BT_D 
+from Jedna_simulacija import Simulacija 
 import xlwt as xl
 import matplotlib.pyplot as plt
 import pickle
@@ -15,7 +16,7 @@ ws7 = wb.add_sheet("BTD statistika")
 ws8 = wb.add_sheet("BT statistika")
 
 broj_simulacija = 1
-name = "BTD"
+name = "BT"
 vreme_otk = []
 vreme_pop = []
 
@@ -74,7 +75,11 @@ for i in ws8_kolone:
 
 for i in range(broj_simulacija):
     print(i+1)
-    vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD, list_stat_BT  = Simulacija()
+    if name == 'BTD':
+        vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD, list_stat_BT  = Simulacija()
+    elif name == "BT":
+        vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD, list_stat_BT  = Simulacija_BT_D()
+
     vreme_otk.append(vremena_otkaza)
     vreme_pop.append(vremena_popravke)
 

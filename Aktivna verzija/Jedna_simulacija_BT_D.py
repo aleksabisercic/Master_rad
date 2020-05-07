@@ -9,7 +9,7 @@ from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 """ FUNKCIJE KOJE SE KORISTE U OKVIRU PROCEDURE """
 
-def Simulacija(): 
+def Simulacija_BT_D(): 
 
     def F_btd_inv(t,L_btd,lambda_t3e, r):
         return (1+lambda_t3e*t)*np.exp(-L_btd*t)-(1-r)
@@ -327,10 +327,7 @@ def Simulacija():
                     DT = -(1/mdo)*np.log(r32)
                     DT = np.round(DT)
                     topr = t + DT
-                    STt1 = "12"
-                    STb = "12"
-                    STt2 = "12"
-                    STt3 = "12"
+
 
                 elif r3 <= (1):
                     OBJoo = "3"

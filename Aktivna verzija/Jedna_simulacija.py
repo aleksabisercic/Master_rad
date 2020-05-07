@@ -306,6 +306,7 @@ def Simulacija():
                     STt1 = "12"
                     STt2 = "12"
                     STb = "12"
+
             elif r <= 1: 
                 Vrotk = "3"
                 r3=np.random.uniform(low=0.0, high=1.0,size=None)
@@ -330,6 +331,10 @@ def Simulacija():
                     DT = -(1/mdo)*np.log(r32)
                     DT = np.round(DT)
                     topr = t + DT
+                    STt1 = "12"
+                    STb = "12"
+                    STt2 = "12"
+                    STt3 = "12"
                     
                 elif r3 <= (1):
                     OBJoo = "3"

@@ -587,7 +587,7 @@ def Simulacija_BT_D():
 
 
 if __name__ == '__main__':
-    Simulacija()
+    
     
         
         

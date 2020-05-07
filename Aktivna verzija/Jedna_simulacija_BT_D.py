@@ -568,7 +568,7 @@ def Simulacija_BT_D():
 	
 	#Statistika bt_sistema
     SrVrRbt = VrRbt / (brR-brOOd)
-    Abt = VrRbtd / (  VrRbt + VrOTKb + VrOTKt)
+    Abt = VrRbtd / ( VrRbt + VrOTKb + VrOTKt)
 	
 
     list_stat_B = [brCnRb, SrVrRb , SrVrCnRb , SrVrRADb , SrVrOEb , SrVrOMb , SrVrOOb , brOTKb , SrVrOTKb , Ab , Aeb , Aob , Amb]
@@ -585,8 +585,6 @@ def Simulacija_BT_D():
    
     return vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD, lista_stat_BT
 
-
-if __name__ == '__main__':
     
     
         

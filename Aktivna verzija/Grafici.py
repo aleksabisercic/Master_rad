@@ -2,14 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
-with open('Rezultati/vremena_otkaza.pkl', 'rb') as f1:
-    vremena_otkaza = pickle.load(f1)
-
-with open('Rezultati/vremena_popravki.pkl', 'rb') as f2:
-    vremena_popravke = pickle.load(f2)
-
+name = "BTD"
 broj_sek_plot = 2000000
 sample = [0,1,2]
+
+
+with open('Rezultati/vremena_otkaza_{}.pkl'.format(name), 'rb') as f1:
+    vremena_otkaza = pickle.load(f1)
+
+with open('Rezultati/vremena_popravki_{}.pkl'.format(name), 'rb') as f2:
+    vremena_popravke = pickle.load(f2)
 
 vremena_otkaza = np.squeeze(vremena_otkaza)
 

@@ -508,22 +508,22 @@ def Simulacija_BT_D():
     Aod = VrRADd / ( VrRADd + VrOOd )
 
     #Trakasti transporteri statistika
-    SrVrRt = VrRt / (brR-brOOd)
+    SrVrRt = podeli(VrRt, (brR-brOOd))
     SrVrCnRt = podeli(VrCnRt, brCnRt)
-    SrVrRADt = VrRADt / ( (brR-brOOd) + brCnRt )
+    SrVrRADt = podeli(VrRADt, ( (brR-brOOd) + brCnRt ))
     SrVrOTKt = podeli(VrOTKt, brOTKt)
     At = VrRADt / ( VrRADt + VrOTKt )
 
     #Trakasti transporter 1 stat.
     brCnRt1 = brOTKb + brOEt2 + brOMt2 + brOOt2 + brOEt3 + brOMt3 + brOOt3
-    SrVrRt1 = VrRt1 / (brR-brOOd) 
-    SrVrCnRt1 = VrCnRt1 / brCnRt1
-    SrVrRADt1 = VrRADt1 / ( (brR-brOOd) + brCnRt1 )
+    SrVrRt1 = podeli(VrRt1, (brR-brOOd)) 
+    SrVrCnRt1 = podeli(VrCnRt1, brCnRt1)
+    SrVrRADt1 = podeli(VrRADt1, ( (brR-brOOd) + brCnRt1 ))
     SrVrOEt1 = podeli(VrOEt1, brOEt1) # ovde mi izbacuje gresku deljenje sa nulom ali moguce da nije doslo do otkaza Elektro motora T1
     SrVrOMt1 = podeli(VrOMt1, brOMt1)
     SrVrOOt1 = podeli(VrOOt1, brOOt1)
     brOTKt1 = brOEt1 + brOMt1 + brOOt1
-    SrVrOTKt1 = VrOTKt1 / brOTKt1
+    SrVrOTKt1 = podeli(VrOTKt1, brOTKt1)
     At1 = VrRADt1 / ( VrRADt1 + VrOTKt1 )
     Aet1 = VrRADt1 / ( VrRADt1 + VrOEt1 )
     Amt1 = VrRADt1 / ( VrRADt1 + VrOMt1 )
@@ -532,9 +532,9 @@ def Simulacija_BT_D():
     #Trakasti transporter 2 stat.
 
     brCnRt2 = brOTKb  + brOEt1 + brOMt1 + brOOt1 + brOEt3 + brOMt3 + brOOt3
-    SrVrRt2 = VrRt2 / (brR-brOOd) 
-    SrVrCnRt2 = VrCnRt2 / brCnRt2
-    SrVrRADt2 = VrRADt2 / ( (brR-brOOd) + brCnRt2 )
+    SrVrRt2 = podeli(VrRt2, (brR-brOOd)) 
+    SrVrCnRt2 = podeli(VrCnRt2, brCnRt2)
+    SrVrRADt2 = podeli(VrRADt2, ( (brR-brOOd) + brCnRt2 ))
     SrVrOEt2 = podeli(VrOEt2, brOEt2)
     SrVrOMt2 = podeli(VrOMt2, brOMt2)
     SrVrOOt2 = podeli(VrOOt2, brOOt2)
@@ -549,8 +549,8 @@ def Simulacija_BT_D():
 
     brCnRt3 = brOTKb + brOEt1 + brOMt1 + brOOt1 + brOEt2 + brOMt2 + brOOt2
     SrVrRt3 = VrRt3 / (brR-brOOd) 
-    SrVrCnRt3 = VrCnRt3 / brCnRt3
-    SrVrRADt3 = VrRADt3 / ( (brR-brOOd) + brCnRt3 )
+    SrVrCnRt3 = podeli(VrCnRt3, brCnRt3)
+    SrVrRADt3 = podeli(VrRADt3, ( (brR-brOOd) + brCnRt3 ))
     SrVrOEt3 = podeli(VrOEt3, brOEt3)
     SrVrOMt3 = podeli(VrOMt3, brOMt3)
     SrVrOOt3 = podeli(VrOOt3, brOOt3)
@@ -563,11 +563,11 @@ def Simulacija_BT_D():
 
     #Statistika btd_sistema
     
-    SrVrRbtd = VrRbtd / brR
+    SrVrRbtd = podeli(VrRbtd, brR)
     Abtd = VrRbtd / ( VrRbtd + VrOTKb + VrOTKd + VrOTKt)
 	
 	#Statistika bt_sistema
-    SrVrRbt = VrRbt / (brR-brOOd)
+    SrVrRbt = podeli(VrRbt, (brR-brOOd))
     Abt = VrRbtd / ( VrRbt + VrOTKb + VrOTKt)
 	
 

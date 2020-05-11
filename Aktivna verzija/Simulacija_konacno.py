@@ -2,7 +2,6 @@ import numpy as np
 from Jedna_simulacija_BT_D import Simulacija_BT_D 
 from Jedna_simulacija import Simulacija 
 import xlwt as xl
-import matplotlib.pyplot as plt
 import pickle
 
 

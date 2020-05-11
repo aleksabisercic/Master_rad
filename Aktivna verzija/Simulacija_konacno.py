@@ -172,15 +172,15 @@ def Simulacija_konacno(name = "BT" , broj_simulacija = "1"):
         
         #BTD
         ws7.row(i+1).write(0,i)
-        ws7.row(i+1).write(1, list_stat_T2[0])
-        ws7.row(i+1).write(2, list_stat_T2[1])
-        ws7.row(i+1).write(3, list_stat_T2[2])
+        ws7.row(i+1).write(1, list_stat_BTD[0])
+        ws7.row(i+1).write(2, list_stat_BTD[1])
+        ws7.row(i+1).write(3, list_stat_BTD[2])
         
         #BT
         ws8.row(i+1).write(0,i)
-        ws8.row(i+1).write(1, list_stat_T2[0])
-        ws8.row(i+1).write(2, list_stat_T2[1])
-        ws8.row(i+1).write(3, list_stat_T2[2])
+        ws8.row(i+1).write(1, list_stat_BT[0])
+        ws8.row(i+1).write(2, list_stat_BT[1])
+        ws8.row(i+1).write(3, list_stat_BT[2])
 
     with open('Rezultati/vremena_otkaza_{}.pkl'.format(name), 'wb') as f3:
         pickle.dump(vreme_otk, f3)

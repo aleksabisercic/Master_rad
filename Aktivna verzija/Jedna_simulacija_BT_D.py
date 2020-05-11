@@ -519,7 +519,7 @@ def Simulacija_BT_D():
     SrVrRt1 = podeli(VrRt1, (brR-brOOd)) 
     SrVrCnRt1 = podeli(VrCnRt1, brCnRt1)
     SrVrRADt1 = podeli(VrRADt1, ( (brR-brOOd) + brCnRt1 ))
-    SrVrOEt1 = podeli(VrOEt1, brOEt1) # ovde mi izbacuje gresku deljenje sa nulom ali moguce da nije doslo do otkaza Elektro motora T1
+    SrVrOEt1 = podeli(VrOEt1, brOEt1) 
     SrVrOMt1 = podeli(VrOMt1, brOMt1)
     SrVrOOt1 = podeli(VrOOt1, brOOt1)
     brOTKt1 = brOEt1 + brOMt1 + brOOt1
@@ -568,7 +568,7 @@ def Simulacija_BT_D():
 	
 	#Statistika bt_sistema
     SrVrRbt = podeli(VrRbt, (brR-brOOd))
-    Abt = VrRbtd / ( VrRbt + VrOTKb + VrOTKt)
+    Abt = VrRbt / ( VrRbt + VrOTKb + VrOTKt)
 	
 
     list_stat_B = [brCnRb, SrVrRb , SrVrCnRb , SrVrRADb , SrVrOEb , SrVrOMb , SrVrOOb , brOTKb , SrVrOTKb , Ab , Aeb , Aob , Amb]
@@ -585,8 +585,7 @@ def Simulacija_BT_D():
    
     return vremena_otkaza, vremena_popravke, list_stat_B, list_stat_D, list_stat_T1, list_stat_T2, list_stat_T3, list_stat_T, list_stat_BTD, lista_stat_BT
 
-    
-    
+Simulacija_BT_D()    
         
         
         

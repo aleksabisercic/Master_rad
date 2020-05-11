@@ -101,7 +101,7 @@ def Simulacija_konacno(name = "BT" , broj_simulacija = "1"):
         ws1.row(i+1).write(13, list_stat_B[12])
         
         #T1
-        ws3.row(i+1).write(0,i)
+        ws3.row(i+1).write(0,i+1)
         ws3.row(i+1).write(1, list_stat_T1[0])
         ws3.row(i+1).write(2, list_stat_T1[1])
         ws3.row(i+1).write(3, list_stat_T1[2])
@@ -117,7 +117,7 @@ def Simulacija_konacno(name = "BT" , broj_simulacija = "1"):
         ws3.row(i+1).write(13, list_stat_T1[12])
         
         #T2
-        ws4.row(i+1).write(0,i)
+        ws4.row(i+1).write(0,i+1)
         ws4.row(i+1).write(1, list_stat_T2[0])
         ws4.row(i+1).write(2, list_stat_T2[1])
         ws4.row(i+1).write(3, list_stat_T2[2])
@@ -133,7 +133,7 @@ def Simulacija_konacno(name = "BT" , broj_simulacija = "1"):
         ws4.row(i+1).write(13, list_stat_T2[12])
         
         #T3
-        ws5.row(i+1).write(0,i)
+        ws5.row(i+1).write(0,i+1)
         ws5.row(i+1).write(1, list_stat_T3[0])
         ws5.row(i+1).write(2, list_stat_T3[1])
         ws5.row(i+1).write(3, list_stat_T3[2])
@@ -148,7 +148,7 @@ def Simulacija_konacno(name = "BT" , broj_simulacija = "1"):
         ws5.row(i+1).write(12, list_stat_T3[11])
         ws5.row(i+1).write(13, list_stat_T3[12])    
         #T
-        ws6.row(i+1).write(0,i)
+        ws6.row(i+1).write(0,i+1)
         ws6.row(i+1).write(1, list_stat_T[0])
         ws6.row(i+1).write(2, list_stat_T[1])
         ws6.row(i+1).write(3, list_stat_T[2])
@@ -156,7 +156,7 @@ def Simulacija_konacno(name = "BT" , broj_simulacija = "1"):
         ws6.row(i+1).write(5, list_stat_T[4])
         
         #D
-        ws2.row(i+1).write(0,i)
+        ws2.row(i+1).write(0,i+1)
         ws2.row(i+1).write(1, list_stat_D[0])
         ws2.row(i+1).write(2, list_stat_D[1])
         ws2.row(i+1).write(3, list_stat_D[2])
@@ -170,13 +170,13 @@ def Simulacija_konacno(name = "BT" , broj_simulacija = "1"):
         ws2.row(i+1).write(11, list_stat_D[10])	
         
         #BTD
-        ws7.row(i+1).write(0,i)
+        ws7.row(i+1).write(0,i+1)
         ws7.row(i+1).write(1, list_stat_BTD[0])
         ws7.row(i+1).write(2, list_stat_BTD[1])
         ws7.row(i+1).write(3, list_stat_BTD[2])
         
         #BT
-        ws8.row(i+1).write(0,i)
+        ws8.row(i+1).write(0,i+1)
         ws8.row(i+1).write(1, list_stat_BT[0])
         ws8.row(i+1).write(2, list_stat_BT[1])
         ws8.row(i+1).write(3, list_stat_BT[2])

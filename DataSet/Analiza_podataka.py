@@ -122,9 +122,5 @@ df.reset_index(inplace = True, drop = True)
 df.to_excel("Zastoji.xlsx")
         
         
-#df["Pocetak zastoja u minutima"] = df["Početak zastoja"] - df.loc[1,1]
-#df["Pocetak zastoja u minutima"] = df["Pocetak zastoja u minutima"]//datetime.timedelta(minutes=1)
-#df["Kraj zastoja u miutama"] = df["Kraj zastoja"] - df.loc[1,1]
-#df["Kraj zastoja u miutama"] = df["Kraj zastoja u miutama"]//datetime.timedelta(minutes=1)
 
 

@@ -45,7 +45,7 @@ Podatci = np.array(lista)
 Podatciy = np.array(lista1)
 
 a = Podatci
-n = 200
+n = 100
 size_i = int(len(a)/2)
 size_j = 2*n+2
 
@@ -141,17 +141,17 @@ class Net(nn.Module):
         self.Batchn = nn.ModuleList()
         for input_size, output_size in zip(Layers, Layers[1:]):
             self.hidden.append(nn.Linear(input_size, output_size))
-#            self.Batchn.append(nn.BatchNorm1d(input_size))
+            self.Batchn.append(nn.BatchNorm1d(input_size))
 			
     # Prediction
     def forward(self, activation):
         L = len(self.hidden)
-#        k = 0
+        k = 0
         for (l, linear_transform) in zip(range(L), self.hidden ):
             if l < L - 1:
-         #       activation = self.Batchn[k](F.relu(linear_transform(activation)))
-        #        k = k + 1
-                activation = F.relu(linear_transform(activation))
+                activation = self.Batchn[k](F.relu(linear_transform(activation)))
+                k = k + 1
+                #activation = F.relu(linear_transform(activation))
             else:
                 activation = linear_transform(activation)
         return activation
@@ -174,8 +174,8 @@ def train( model, criterion, train_loader,validation_loader, optimizer, data_set
             loss.backward()
             optimizer.step()
  #           LOSS.append(loss.item())
-            if epoch%5 == 0:
-                print(loss)
+#            if epoch%5 == 0:
+#                print(loss)
             useful_stuff['training_loss'].append(loss.item())
             
        # ACC.append(accuracy(model, data_set))
@@ -184,14 +184,15 @@ def train( model, criterion, train_loader,validation_loader, optimizer, data_set
             model.eval()
             yhat1 = model(x)
             loss1 = criterion(yhat1, y)
+            print(loss1)
             useful_stuff['validation_accuracy'].append(loss1.item())
 #            ACC.append(loss1.item())
 
     return useful_stuff  
-   
+#dropout   
 data_set = train_data
 data_set1 = test_data
-Layers = [2*n, 15, 15,15,15, 1] #15_15_15_10_500ep_n400_lr0_005_bs512
+Layers = [2*n, 15, 10, 15, 5, 1] #15_15_15_10_500ep_n400_lr0_005_bs512
 model = Net(Layers)
 learning_rate = 0.005
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate) #adam

@@ -120,7 +120,26 @@ df["Kraj_zastoja_u_miutama"] = df["Kraj_zastoja_u_miutama"]//datetime.timedelta(
 df = df[df["Sistem"].isin(lokacije)]
 df.reset_index(inplace = True, drop = True)
 df.to_excel("Zastoji.xlsx")
+df.to_excel("Zastoji1.xlsx")
         
-        
+#reviews.iloc[:, 0]
+#reviews.loc[0, 'country']
 
-
+brojac = 0 
+t = 10
+X_osa = int(len(Training_lista)/2)
+A = np.zeros(( X_osa , t+2 ))
+print(A.shape)
+x=0
+for i in range (0, X_osa):
+	A[i][-2] = Training_lista[x]
+	A[i][-1] = Training_lista[x+1]
+	for n in range (0,t):
+		while (x-n) >= 0:
+			if brojac == t:
+				break			
+			for g in range (3,t+1):
+				A[i][-g] = Training_lista[(x-1)+3-g]	
+		brojac = brojac + 1
+	x = x + 2
+print(A)

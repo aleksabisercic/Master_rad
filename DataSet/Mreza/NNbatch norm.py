@@ -45,7 +45,7 @@ Podatci = np.array(lista)
 Podatciy = np.array(lista1)
 
 a = Podatci
-n = 40
+n = 400
 size_i = int(len(a)/2)
 size_j = 2*n+2
 
@@ -117,7 +117,7 @@ test_data = NNvDataset( X2, Y2 )
 
 # dataloaders
 train_loader = DataLoader(dataset = train_data, batch_size = 512,  shuffle=False) #da li sam dobro razumeo batch size
-validation_loader = DataLoader(dataset = test_data, shuffle=False)
+validation_loader = DataLoader(dataset = test_data, batch_size = 512, shuffle=False)
 
 #ploting 
 def plot_accuracy_loss(training_results): 
@@ -135,21 +135,24 @@ def plot_accuracy_loss(training_results):
 class NetBatchNorm(nn.Module):
     
     # Constructor
-    def __init__(self, in_size, n_hidden1, n_hidden2, out_size):
+    def __init__(self, in_size, n_hidden1, n_hidden2,n_hidden3,n_hidden4, out_size):
         super(NetBatchNorm, self).__init__()
         self.linear1 = nn.Linear(in_size, n_hidden1)
         self.linear2 = nn.Linear(n_hidden1, n_hidden2)
-		self.linear3 = nn.Linear(n_hidden2, n_hidden3)
-		self.linear4 = nn.Linear(n_hidden3, n_hidden4)
-        self.linear5 = nn.Linear(n_hidden4, out_size)
+        self.linear3 = nn.Linear(n_hidden2, n_hidden3)
+#        self.linear4 = nn.Linear(n_hidden3, n_hidden4)
+        self.linear4 = nn.Linear(n_hidden3, out_size)
         self.bn1 = nn.BatchNorm1d(n_hidden1)
         self.bn2 = nn.BatchNorm1d(n_hidden2)
-        
+        self.bn3 = nn.BatchNorm1d(n_hidden3)
+#        self.bn4 = nn.BatchNorm1d(n_hidden4)        
     # Prediction
     def forward(self, x):
-        x = self.bn1(torch.sigmoid(self.linear1(x)))
-        x = self.bn2(torch.sigmoid(self.linear2(x)))
-        x = self.linear3(x)
+        x = self.bn1(torch.relu(self.linear1(x)))
+        x = self.bn2(torch.relu(self.linear2(x)))
+        x = self.bn3(torch.relu(self.linear3(x)))
+#        x = self.bn4(torch.relu(self.linear4(x)))		
+        x = self.linear4(x)
         return x
     
 
@@ -158,7 +161,7 @@ def accuracy(y1, yhat1):
     y_true = y1.detach().numpy()
     return (mean_squared_error(y_true, y_pred))
 
-def train( model , criterion, train_loader, validation_loader, optimizer, epochs=150):
+def train( model , criterion, train_loader, validation_loader, optimizer, epochs=500):
     
  #   LOSS = []
 #    ACC = []
@@ -172,8 +175,7 @@ def train( model , criterion, train_loader, validation_loader, optimizer, epochs
             loss.backward()
             optimizer.step()
   #          LOSS.append(loss.item())
-            if epoch%5 == 0:
-                print(loss)
+
             useful_stuff['training_loss'].append(loss.item())
        # ACC.append(accuracy(model, data_set))
   
@@ -181,6 +183,8 @@ def train( model , criterion, train_loader, validation_loader, optimizer, epochs
             model.eval()
             yhat1 = model(x)
             loss1 = criterion(yhat1, y)
+            if epoch%5 == 0:
+                print(loss1)			
             useful_stuff['validation_accuracy'].append(loss1.item())
 
     return useful_stuff  
@@ -188,14 +192,14 @@ def train( model , criterion, train_loader, validation_loader, optimizer, epochs
 data_set = train_data
 data_set1 = test_data
 #Layers = [2*n, 6, 6, 1] #10_10_150ep_n40_bn_batch_size256
-hidden_dim = 10
+hidden_dim = 6
 input_dim = 2*n
 output_dim = 1
 learning_rate = 0.01
-model_norm  = NetBatchNorm(input_dim, hidden_dim, hidden_dim, output_dim)
+model_norm  = NetBatchNorm(input_dim, hidden_dim,hidden_dim,hidden_dim, hidden_dim, output_dim)
 criterion = nn.MSELoss() #nadji mean square error	
-optimizer = torch.optim.Adam(model_norm.parameters(), lr = 0.1)
-training_results = train(model_norm , criterion, train_loader, validation_loader, optimizer, epochs=150)
+optimizer = torch.optim.Adam(model_norm.parameters(), lr = learning_rate)
+training_results = train(model_norm , criterion, train_loader, validation_loader, optimizer, epochs=500)
 #optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate) #adam
 #training_results = train(model, criterion, train_loader, validation_loader, optimizer,data_set1, epochs=400)
 plot_accuracy_loss(training_results)

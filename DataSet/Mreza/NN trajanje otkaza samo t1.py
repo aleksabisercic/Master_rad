@@ -15,6 +15,7 @@ from sklearn.metrics import mean_squared_error
 from matplotlib.colors import ListedColormap
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
+from sklearn import preprocessing
 
 df = pd.read_excel("Zastoji.xlsx", index_col = 0)
 df = df[df["Sistem"] == "BTD SchRs-800"]
@@ -43,7 +44,7 @@ Podatci = np.array(lista)
 
 
 a = Podatci
-n = 20
+n = 50
 size_i = int(len(a)/2)
 size_j = n+1
 
@@ -74,6 +75,14 @@ X1 = X[:startx]
 Y2 = Y[starty:]
 Y1 = Y[:starty]
 Y2 = Y2.reshape(int(len(Y2)),1 )
+transformx1 = preprocessing.normalize(X1)
+transformx2 = preprocessing.normalize(X2)
+norm = np.linalg.norm(Y1)
+normal_y1 = Y1
+norm = np.linalg.norm(Y2)
+normal_y2 = Y2
+
+
 def get_device():
     if torch.cuda.is_available():
         device = 'cuda:0'
@@ -83,9 +92,9 @@ def get_device():
 device = get_device()
 
 class NNtDataset(Dataset):
-    def __init__(self, X1, Y1):
-        self.x = torch.from_numpy(X1).type(torch.FloatTensor)
-        self.y = torch.from_numpy(Y1).type(torch.FloatTensor)
+    def __init__(self, transformx1, transformy1):
+        self.x = torch.from_numpy(transformx1).type(torch.FloatTensor)
+        self.y = torch.from_numpy(transformy1).type(torch.FloatTensor)
         self.y = self.y.view(-1,1)
 		     	   
     def __len__(self):
@@ -95,9 +104,9 @@ class NNtDataset(Dataset):
         return self.x[index], self.y[index]
   
 class NNvDataset(Dataset):
-    def __init__(self, X2, Y2):
-        self.x = torch.from_numpy(X2).type(torch.FloatTensor)
-        self.y = torch.from_numpy(Y2).type(torch.FloatTensor)
+    def __init__(self, transformx2, transformy2):
+        self.x = torch.from_numpy(transformx2).type(torch.FloatTensor)
+        self.y = torch.from_numpy(transformy2).type(torch.FloatTensor)
         self.y = self.y.view(-1,1)
 		     	   
     def __len__(self):
@@ -107,23 +116,22 @@ class NNvDataset(Dataset):
         return self.x[index], self.y[index]
 
  
-train_data = NNtDataset( X1, Y1 )
-test_data = NNvDataset( X2, Y2 )
+train_data = NNtDataset( transformx1, normal_y1 )
+test_data = NNvDataset( transformx2, normal_y2 )
 
 
 # dataloaders
 train_loader = DataLoader(dataset = train_data, batch_size = 512,  shuffle=False) #da li sam dobro razumeo batch size
-validation_loader = DataLoader(dataset = test_data, shuffle=False)
-
+validation_loader = DataLoader(dataset = test_data, batch_size = 512, shuffle=False)
 #ploting 
 def plot_accuracy_loss(training_results): 
     plt.subplot(2, 1, 1)
-    plt.plot(training_results['training_loss'], 'r')
+    plt.plot(training_results['training_loss'], 'r-')
     plt.ylabel('loss')
     plt.xlabel('epochs') 
     plt.title('training loss iterations')
     plt.subplot(2, 1, 2)
-    plt.plot(training_results['validation_accuracy'])
+    plt.plot(training_results['validation_accuracy'], 'b-')
     plt.ylabel('accuracy')
     plt.xlabel('epochs')   
     plt.show()
@@ -131,18 +139,26 @@ def plot_accuracy_loss(training_results):
 class Net(nn.Module):
     
     # Constructor
-    def __init__(self, Layers):
+    def __init__(self, Layers,p=0.6):
         super(Net, self).__init__()
+        self.drop = nn.Dropout(p=p)		
         self.hidden = nn.ModuleList()
+        self.Batchn = nn.ModuleList()
         for input_size, output_size in zip(Layers, Layers[1:]):
-            self.hidden.append(nn.Linear(input_size, output_size))
-    
+            linear = nn.Linear(input_size, output_size)
+            torch.nn.init.kaiming_uniform_(linear.weight, nonlinearity='relu') 
+            batchq = nn.BatchNorm1d(output_size)
+            self.hidden.append(linear)
+            self.Batchn.append(batchq)
     # Prediction
     def forward(self, activation):
         L = len(self.hidden)
-        for (l, linear_transform) in zip(range(L), self.hidden):
+        k = 0
+        for (l, linear_transform) in zip(range(L), self.hidden ):
             if l < L - 1:
-                activation = F.relu(linear_transform(activation))
+                activation = self.Batchn[k](F.relu(self.drop(linear_transform(activation))))
+                k = k + 1
+                #activation = F.relu(linear_transform(activation))
             else:
                 activation = linear_transform(activation)
         return activation
@@ -152,39 +168,44 @@ def accuracy(y1, yhat1):
     y_true = y1.detach().numpy()
     return (mean_squared_error(y_true, y_pred))
 
-def train( model, criterion, train_loader,validation_loader, optimizer, data_set1, epochs=150):
-    model.train()
-    LOSS = []
+def train( model, criterion, train_loader,validation_loader, optimizer, data_set1, epochs=500):
+ #   LOSS = []
 #    ACC = []
     useful_stuff = {'training_loss': [],'validation_accuracy': []}  
     for epoch in range(epochs):       
         for x, y in train_loader: 
+            model.train()
             yhat = model(x)
             loss = criterion(yhat, y)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            LOSS.append(loss.item())
-            if epoch%5 == 0:
-                print(loss)
+ #           LOSS.append(loss.item())
+#            if epoch%5 == 0:
+#                print(loss)
             useful_stuff['training_loss'].append(loss.item())
+            
        # ACC.append(accuracy(model, data_set))
   
         for x,y in validation_loader:
+            model.eval()
             yhat1 = model(x)
-            y1 = y
-            useful_stuff['validation_accuracy'].append(accuracy(y1, yhat1))
+            loss1 = criterion(yhat1, y)
+            if epoch%1 == 0:
+                print(loss1)			
+            useful_stuff['validation_accuracy'].append(loss1.item())
+#            ACC.append(loss1.item())
 
     return useful_stuff  
-   
+#dropout   
 data_set = train_data
 data_set1 = test_data
-Layers = [n, 10, 10, 1] 
-model = Net(Layers)
-learning_rate = 0.01
+Layers = [n, 50,35,10, 1] #15_15_15_10_500ep_n400_lr0_005_bs512
+model = Net(Layers, p=0.2)
+learning_rate = 0.005
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate) #adam
 criterion = nn.MSELoss() #nadji mean square error	
-training_results = train(model, criterion, train_loader, validation_loader, optimizer,data_set1, epochs=150)
+training_results = train(model, criterion, train_loader, validation_loader, optimizer,data_set1, epochs=500)
 plot_accuracy_loss(training_results)
 
 #ako ostatak posle deljenja sa epoch%5 = 0 print(loss) e

@@ -11,6 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from sklearn import preprocessing
 from sklearn.metrics import mean_squared_error
 from matplotlib.colors import ListedColormap
 from torch.utils.data import DataLoader
@@ -67,17 +68,29 @@ for i in range (0, size_i):
     X_list = mat[i][:(2*n)]
     X.append(X_list)
 	
-Y = np.array(lista1)	    
+Y = np.array(lista1)
+#Y = Y.reshape(-1, 1)	    
 X = np.array(X) 
 
-startx= int(len(X)*0.8)
-starty= int(len(Y)*0.8)
+startx= int(len(X)*0.9)
+starty= int(len(Y)*0.9)
 
 X2 = X[startx:]
 X1 = X[:startx]
 Y2 = Y[starty:]
 Y1 = Y[:starty]
-Y2 = Y2.reshape(int(len(Y2)),1 )
+
+transformx1 = preprocessing.normalize(X1)
+transformx2 = preprocessing.normalize(X2)
+norm = np.linalg.norm(Y1)
+normal_y1 = Y1/norm
+norm = np.linalg.norm(Y2)
+normal_y2 = Y2/norm
+#normal_y2 = normal_y2.reshape(-1, 1)
+#normal_y1 = normal_y2.reshape(-1, 1)
+#transformy1 = preprocessing.normalize(Y1)
+#transformy2 = preprocessing.normalize(Y2)
+
 def get_device():
     if torch.cuda.is_available():
         device = 'cuda:0'
@@ -87,9 +100,9 @@ def get_device():
 device = get_device()
 
 class NNtDataset(Dataset):
-    def __init__(self, X1, Y1):
-        self.x = torch.from_numpy(X1).type(torch.FloatTensor)
-        self.y = torch.from_numpy(Y1).type(torch.FloatTensor)
+    def __init__(self, transformx1, transformy1):
+        self.x = torch.from_numpy(transformx1).type(torch.FloatTensor)
+        self.y = torch.from_numpy(transformy1).type(torch.FloatTensor)
         self.y = self.y.view(-1,1)
 		     	   
     def __len__(self):
@@ -99,9 +112,9 @@ class NNtDataset(Dataset):
         return self.x[index], self.y[index]
   
 class NNvDataset(Dataset):
-    def __init__(self, X2, Y2):
-        self.x = torch.from_numpy(X2).type(torch.FloatTensor)
-        self.y = torch.from_numpy(Y2).type(torch.FloatTensor)
+    def __init__(self, transformx2, transformy2):
+        self.x = torch.from_numpy(transformx2).type(torch.FloatTensor)
+        self.y = torch.from_numpy(transformy2).type(torch.FloatTensor)
         self.y = self.y.view(-1,1)
 		     	   
     def __len__(self):
@@ -111,13 +124,13 @@ class NNvDataset(Dataset):
         return self.x[index], self.y[index]
 
  
-train_data = NNtDataset( X1, Y1 )
-test_data = NNvDataset( X2, Y2 )
+train_data = NNtDataset( transformx1, normal_y1 )
+test_data = NNvDataset( transformx2, normal_y2 )
 
 
 # dataloaders
 train_loader = DataLoader(dataset = train_data, batch_size = 512,  shuffle=False) #da li sam dobro razumeo batch size
-validation_loader = DataLoader(dataset = test_data, batch_size = 512, shuffle=False)
+validation_loader = DataLoader(dataset = test_data,  shuffle=False)
 
 #ploting 
 def plot_accuracy_loss(training_results): 
@@ -135,17 +148,18 @@ def plot_accuracy_loss(training_results):
 class NetBatchNorm(nn.Module):
     
     # Constructor
-    def __init__(self, in_size, n_hidden1, n_hidden2,n_hidden3,n_hidden4, out_size):
+    def __init__(self, in_size, n_hidden1, n_hidden2,n_hidden3,n_hidden4, out_size, p=0):
         super(NetBatchNorm, self).__init__()
+        self.drop = nn.Dropout(p=p)
         self.linear1 = nn.Linear(in_size, n_hidden1)
         self.linear2 = nn.Linear(n_hidden1, n_hidden2)
         self.linear3 = nn.Linear(n_hidden2, n_hidden3)
-#        self.linear4 = nn.Linear(n_hidden3, n_hidden4)
-        self.linear4 = nn.Linear(n_hidden3, out_size)
+        self.linear4 = nn.Linear(n_hidden3, n_hidden4)
+        self.linear5 = nn.Linear(n_hidden4, out_size)
         self.bn1 = nn.BatchNorm1d(n_hidden1)
         self.bn2 = nn.BatchNorm1d(n_hidden2)
         self.bn3 = nn.BatchNorm1d(n_hidden3)
-#        self.bn4 = nn.BatchNorm1d(n_hidden4)        
+        self.bn4 = nn.BatchNorm1d(n_hidden4)        
     # Prediction
     def forward(self, x):
         x = self.bn1(torch.relu(self.linear1(x)))
@@ -183,7 +197,7 @@ def train( model , criterion, train_loader, validation_loader, optimizer, epochs
             model.eval()
             yhat1 = model(x)
             loss1 = criterion(yhat1, y)
-            if epoch%5 == 0:
+            if epoch%1 == 0:
                 print(loss1)			
             useful_stuff['validation_accuracy'].append(loss1.item())
 
@@ -192,16 +206,20 @@ def train( model , criterion, train_loader, validation_loader, optimizer, epochs
 data_set = train_data
 data_set1 = test_data
 #Layers = [2*n, 6, 6, 1] #10_10_150ep_n40_bn_batch_size256
-hidden_dim = 6
+hidden_d = 10
+hidden_di = 10
+hidden_dim = 15
+
 input_dim = 2*n
 output_dim = 1
-learning_rate = 0.01
-model_norm  = NetBatchNorm(input_dim, hidden_dim,hidden_dim,hidden_dim, hidden_dim, output_dim)
+learning_rate = 0.005
+model_norm  = NetBatchNorm(input_dim, hidden_d, hidden_dim, hidden_dim, hidden_di, output_dim, p=0.4 )
 criterion = nn.MSELoss() #nadji mean square error	
 optimizer = torch.optim.Adam(model_norm.parameters(), lr = learning_rate)
-training_results = train(model_norm , criterion, train_loader, validation_loader, optimizer, epochs=500)
+training_results = train(model_norm , criterion, train_loader, validation_loader, optimizer, epochs=200)
 #optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate) #adam
 #training_results = train(model, criterion, train_loader, validation_loader, optimizer,data_set1, epochs=400)
 plot_accuracy_loss(training_results)
 
 #ako ostatak posle deljenja sa epoch%5 = 0 print(loss) e
+#10_15_15_20_lr_0005_bn_n

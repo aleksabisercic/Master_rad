@@ -94,7 +94,6 @@ def ploting(lambd, mi, graph_name):
     plt.ylabel('popravki/intervalu')
     plt.xlabel('vreme') 
     plt.show()
-    plt.savefig(graph_name)
 
 
 seq_leng = np.random.uniform(10, 480, size = 15) 

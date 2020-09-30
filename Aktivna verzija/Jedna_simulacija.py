@@ -7,6 +7,9 @@ Created on Thu Apr 30 23:46:46 2020
 import numpy as np
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
+import torch
+import pandas as pd
+
 """ FUNKCIJE KOJE SE KORISTE U OKVIRU PROCEDURE """
 
 def Simulacija(): 

@@ -119,9 +119,7 @@ df["Kraj_zastoja_u_miutama"] = df["Kraj_zastoja_u_miutama"]//datetime.timedelta(
         
 df = df[df["Sistem"].isin(lokacije)]
 df.reset_index(inplace = True, drop = True)
-df.to_excel("Zastoji.xlsx")
-df.to_excel("Zastoji1.xlsx")
-        
+df.to_excel("Zastoji.xlsx")        
 #reviews.iloc[:, 0]
 #reviews.loc[0, 'country']
 

@@ -8,21 +8,6 @@ Created on Tue Sep 29 15:05:20 2020
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import torch
-import torch.nn as nn
-import xlwt as xl
-import pickle
-import seaborn as sns
-import time
-
-from sklearn import preprocessing
-from sklearn.preprocessing import MinMaxScaler
-from torch.utils.data import DataLoader
-from sklearn import preprocessing
-from pylab import rcParams
-from sklearn.preprocessing import MinMaxScaler
-from pandas.plotting import register_matplotlib_converters
-from torch.utils.data import TensorDataset, DataLoader
 
 df = pd.read_excel("Zastoji.xlsx", index_col=0)
 df = df[df["Sistem"] == "BTD SchRs-800"]
@@ -52,35 +37,46 @@ podatci2 = np.array(lista2)
 podatci2 = podatci2 - podatci1[0]
 #podatci1 = podatci1/max(podatci1)
 
-def gen_lambda(podatci1,podatci2, seq_len):
+def gen_lambda_and_mi(podatci1,podatci2, seq_len, t):
     a = np.zeros(podatci2[-1])
     for i in podatci1:
         a[0] = 1
         if i == 0: continue
         a[i-1] = 1
+        
+    a1 = np.zeros(podatci2[-1])
+    for i in podatci2:
+        a1[i-1] = 1  
+
     lambd = []
+    mi = []    
     start = 0
     end = seq_len
-    for i in range(int(len(a)/seq_len)):
+    for i in range(int((len(a)-seq_len)/t)):
         ls = a[start:end]
         lambd.append(sum(ls))
-        start = end
-        end += seq_len
-    return lambd
+        ls1 = a1[start:end]
+        mi.append(sum(ls1))
+        start += t
+        end += t
+    lambd.append(sum(a[-seq_len:]))
+    mi.append(sum(a1[-seq_len:]))
+    return lambd, mi
 
-def gen_mi(podatci2, seq_len):
+def gen_mi(podatci2, seq_len, t):
     a = np.zeros(podatci2[-1])
     for i in podatci2:
         a[i-1] = 1
-    lambd = []
+    mi = []
     start = 0
     end = seq_len
-    for i in range(int(len(a)/seq_len)):
+    for i in range(int((len(a)-seq_len)/t)):
         ls = a[start:end]
-        lambd.append(sum(ls))
-        start = end
-        end += seq_len
-    return lambd
+        mi.append(sum(ls))
+        start += t
+        end += t
+    mi.append(sum(a[-seq_len:]))
+    return mi
 
 def ploting(lambd, mi, graph_name): 
     plt.clf()
@@ -94,15 +90,19 @@ def ploting(lambd, mi, graph_name):
     plt.ylabel('popravki/intervalu')
     plt.xlabel('vreme') 
     plt.show()
+    plt.savefig('graph_Lambda_mi/' + graph_name + '.png')
 
 
-seq_leng = np.random.uniform(10, 480, size = 15) 
+#seq_leng = np.random.uniform(300, 15*60*24, size = 100) 
+seq_leng = [24*60, 48*60, 120*60, 7*24*60, 15*24*60, 30*24*60]
+dt = [30,60]
+
 for seq_len in seq_leng:
-    a = int(seq_len/60)
-    graph_name = str(a) + 'hours interval' + '.png'
-    lambd = gen_lambda(podatci1,podatci2, int(seq_len))
-    mi = gen_mi(podatci2, int(seq_len))
-    ploting(lambd, mi, graph_name )
+    for t in dt:
+        a = int(seq_len/60)
+        graph_name = str(a) + '(prozor u satima), sliding window:' + str(t)
+        lambd, mi =  gen_lambda_and_mi(podatci1,podatci2, int(seq_len), t)
+        ploting(lambd, mi, graph_name )
 
     
         

@@ -4,7 +4,6 @@ Created on Tue Sep 29 15:05:20 2020
 
 @author: Freedom
 """
-
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -24,9 +23,9 @@ lista2 = []
 lista1 = []
 
 for i in range(0, len(df.index)):  # df['Vreme_zastoja']:
-	if df["Vreme_zastoja"].iloc[i] > 2000:
+	if df["Vreme_zastoja"].iloc[i] > 75000:
 		continue
-	if df["Vreme_rada"].iloc[i] > 3000:
+	if df["Vreme_rada"].iloc[i] > 75000:
 		continue
 	lista1.append(df["Pocetak_zastoja_u_minutima"].iloc[i])
 	lista2.append(df["Kraj_zastoja_u_miutama"].iloc[i])
@@ -42,7 +41,7 @@ def gen_lambda_and_mi(podatci1,podatci2, seq_len, t):
     for i in podatci1:
         a[0] = 1
         if i == 0: continue
-        a[i-1] = 1
+        a[i] = 1
         
     a1 = np.zeros(podatci2[-1])
     for i in podatci2:
@@ -94,16 +93,14 @@ def ploting(lambd, mi, graph_name):
 
 
 #seq_leng = np.random.uniform(300, 15*60*24, size = 100) 
-seq_leng = [24*60, 48*60, 120*60, 7*24*60, 15*24*60, 30*24*60]
-dt = [30,60]
+seq_leng = [ 15*24*60]
+dt = [60]
 
 for seq_len in seq_leng:
     for t in dt:
-        a = int(seq_len/60)
-        graph_name = str(a) + '(prozor u satima), sliding window:' + str(t)
-        lambd, mi =  gen_lambda_and_mi(podatci1,podatci2, int(seq_len), t)
-        ploting(lambd, mi, graph_name )
-
-    
+        mi =  gen_mi(podatci2, int(seq_len), t)
+        dataY = np.array(mi).reshape(-1, 1)
+        dataX = np.array(mi).reshape(1, -1)
+        test=0
         
     

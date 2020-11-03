@@ -85,7 +85,7 @@ def sliding_windows(datax, datay, seq_length):
     y = np.array(y)
     x = np.array(x)
     return x.reshape(len(x),int(seq_length/2),2), y.reshape(len(x),2)
-
+x,y = sliding_windows(datax, datay, 50)
 # torch.cuda.is_available() checks and returns a Boolean True if a GPU is available, else it'll return False
 is_cuda = torch.cuda.is_available()
 
@@ -246,7 +246,7 @@ def evaluate(model,testX, testY):
 
 seq_length =  [ 50 ]
 hidden_dim = [ 25  ]
-number_of_layers = [ 1 ]
+number_of_layers = [ 2 ]
 
 
 counter = 1 
@@ -273,10 +273,10 @@ for seq_len in seq_length:
 			#Data loader
 			batch_size = 128		
 			train_data = TensorDataset(torch.from_numpy(trainX), torch.from_numpy(trainY))
-			train_loader = DataLoader(train_data, shuffle=True, batch_size=batch_size, drop_last=True)
+			train_loader = DataLoader(train_data, shuffle=False, batch_size=batch_size, drop_last=True)
 			test_data = TensorDataset(torch.from_numpy(testX), torch.from_numpy(testY))
-			test_loader = DataLoader(test_data, shuffle=True, batch_size=testY.shape[0], drop_last=True)
-			lr = 0.005
+			test_loader = DataLoader(test_data, shuffle=False, batch_size=testY.shape[0], drop_last=True)
+			lr = 0.01
 			
 			#Training and Validating RNN_model
 #			rnn_model, rnn_training_loss = train(train_loader, lr, hid_dim,num_layers, model_type="RNN")

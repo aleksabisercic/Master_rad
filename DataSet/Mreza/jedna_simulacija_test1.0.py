@@ -82,8 +82,9 @@ Ptt1=0.01428571
 Ptt2=0.257142857
 Ptt3=0.728571429
 
-broj_sekundi_u_godini=31536000
 
+broj_sekundi_u_godini=31536000
+broj_sekundi_u_godini = 7948800
 """ INICIJALNE VREDNOSTI PARAMETARA """
 
 VrRb=0
@@ -168,11 +169,6 @@ vremena_popravke = []
 
 """ POCETAK PROGRAMA """ 
 
-import torch
-import pandas as pd
-import numpy as np
-import torch.nn as nn
-
 
 class LSTMNet(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, n_layers, drop_prob=0.2):
@@ -206,7 +202,7 @@ else:
 PATH = "entire_model2.pt"
 model = torch.load(PATH)
 model.eval()
-t = np.load('test_X.npy' )
+otkazi_prethodni = np.load('test_X.npy' )
 
 def pred(model, test_x):
     model.eval()
@@ -215,9 +211,13 @@ def pred(model, test_x):
     out, h = model(inp.to(device).float(), h)
     return np.squeeze(out.detach().numpy())
 
-prediction = pred(model, t)
+prediction = pred(model, otkazi_prethodni)
 tp0 = np.random.normal(prediction[1], 231)
 tp0 = np.abs(np.round(tp0))*60
+a = otkazi_prethodni.reshape(1,-1)
+otkazi_prethodni = np.roll(a, -2)
+otkazi_prethodni = otkazi_prethodni.reshape(-1,2)
+otkazi_prethodni[-1] = prediction
 for t in range(1,broj_sekundi_u_godini,1):   
     if t == tp0:
         
@@ -247,7 +247,6 @@ for t in range(1,broj_sekundi_u_godini,1):
                 DT = np.random.normal( prediction[0], 124)
                 DT = np.abs(np.round(DT))
                 topr = t+DT
-
                 STd = "12"
                 STb = "12"
                 STt2 = "12"
@@ -268,7 +267,6 @@ for t in range(1,broj_sekundi_u_godini,1):
                 OBJeo = "4"
                 brOEt3 = brOEt3 + 1
                 STt3 = "21"
-                r14 = np.random.uniform(low=0.0, high=1.0,size=None)
                 DT = np.random.normal( prediction[0], 124)
                 DT = np.abs(np.round(DT))
                 topr = t+DT
@@ -283,7 +281,6 @@ for t in range(1,broj_sekundi_u_godini,1):
                 OBJmo = "1"
                 brOMb = brOMb + 1
                 STb="22"
-                r21=np.random.uniform(low=0.0, high=1.0,size=None)
                 DT = np.random.normal( prediction[0], 124)
                 DT = np.abs(np.round(DT))
                 topr = t+DT
@@ -295,7 +292,6 @@ for t in range(1,broj_sekundi_u_godini,1):
                 OBJmo = "2"
                 brOMt1 = brOMt1 +1
                 STt1 = "22"
-                r22=np.random.uniform(low=0.0, high=1.0,size=None)
                 DT = np.random.normal( prediction[0], 124)
                 DT = np.abs(np.round(DT))
                 topr = t+DT
@@ -307,10 +303,9 @@ for t in range(1,broj_sekundi_u_godini,1):
                 OBJmo = "3"
                 brOMt2 = brOMt2 + 1
                 STt2 = "22"
-                r23 = np.random.uniform(low=0.0, high=1.0,size=None)
-                DT = -(1/mt2m)*np.log(r23)
-                DT = np.round(DT)
-                topr = t + DT
+                DT = np.random.normal( prediction[0], 124)
+                DT = np.abs(np.round(DT))
+                topr = t+DT
                 STd = "12"
                 STt1 = "12"
                 STb = "12"
@@ -319,10 +314,9 @@ for t in range(1,broj_sekundi_u_godini,1):
                 OBJmo = "4"
                 brOMt3 = brOMt3 + 1
                 STt3 = "22"
-                r24 = np.random.uniform(low=0.0, high=1.0,size=None)
-                DT = -(1/mt3m)*np.log(r24)
-                DT = np.round(DT)
-                topr = t + DT
+                DT = np.random.normal( prediction[0], 124)
+                DT = np.abs(np.round(DT))
+                topr = t+DT
                 STd = "12"
                 STt1 = "12"
                 STt2 = "12"
@@ -335,10 +329,9 @@ for t in range(1,broj_sekundi_u_godini,1):
                 OBJoo = "1"
                 brOOb = brOOb + 1
                 STb = "23"
-                r31 = np.random.uniform(low=0.0, high=1.0,size=None)
-                DT = -(1/mbo)*np.log(r31)
-                DT = np.round(DT)
-                topr = t + DT
+                DT = np.random.normal( prediction[0], 124)
+                DT = np.abs(np.round(DT))
+                topr = t+DT
                 STd = "12"
                 STt1 = "12"
                 STt2 = "12"
@@ -348,10 +341,9 @@ for t in range(1,broj_sekundi_u_godini,1):
                 OBJoo = "2"
                 brOOd = brOOd + 1
                 STd = "23"
-                r32 = np.random.uniform(low=0.0, high=1.0,size=None)
-                DT = -(1/mdo)*np.log(r32)
-                DT = np.round(DT)
-                topr = t + DT
+                DT = np.random.normal( prediction[0], 124)
+                DT = np.abs(np.round(DT))
+                topr = t+DT
                 STt1 = "12"
                 STb = "12"
                 STt2 = "12"
@@ -388,10 +380,9 @@ for t in range(1,broj_sekundi_u_godini,1):
                     STt2 = "12"
                     STb = "12"
             
-                r41 = np.random.uniform(low=0.0, high=1.0,size=None)
-                DT = -(1/mtxo)*np.log(r41) 
-                DT = np.round(DT)
-                topr = t + DT
+                DT = np.random.normal( prediction[0], 124)
+                DT = np.abs(np.round(DT))
+                topr = t+DT
 
     if t==topr:
         vremena_popravke.append(topr)   
@@ -402,15 +393,16 @@ for t in range(1,broj_sekundi_u_godini,1):
         STb = "11"
         STbtd ="11"
 		
-        if Bisection_izbor == True: 
-            tp0 = bisection(F_btd_inv,0,108000,1000, L_btd, lambda_t3e, r_vremena_otkaza)
-        else:
-            tp0 = fsolve(F_btd_inv,0,args = (L_btd, lambda_t3e, r_vremena_otkaza))
         
-        tp0 = np.round(tp0)
+        prediction = pred(model, otkazi_prethodni)
+        tp0 = np.random.normal(prediction[1], 231)
+        tp0 = np.abs(np.round(tp0))*60
         tp0 = t + tp0
         vremena_otkaza.append(tp0)
-    
+        a = otkazi_prethodni.reshape(1,-1)
+        otkazi_prethodni = np.roll(a, -2)
+        otkazi_prethodni = otkazi_prethodni.reshape(-1,2)
+        otkazi_prethodni[-1] = prediction
 		
     if STb == '11':
         VrRb = VrRb + 1

@@ -235,7 +235,7 @@ def evaluate(model, test_loader):
 
 seq_length =  [ 50 ]
 hidden_dim = [ 50  ]
-number_of_layers = [ 2,3 ]
+number_of_layers = [ 2 ]
 
 wb = xl.Workbook ()
 ws1 = wb.add_sheet("RNN razultati")

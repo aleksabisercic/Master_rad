@@ -239,12 +239,12 @@ for seq_len in seq_length:
 			test_loss, avg_test_loss = evaluate(lstm_model, testX, testY)
            
 			PATH = "modelLSTM/entire_model_par3.pt"
-#			PATH1 = "modelLSTM/entire_model3.pt"
-#			PATH2 = "modelLSTM/dict3.pt"
- #           # Save
-	#		checkpoint = {'model': lstm_model,
-     #      'state_dict': lstm_model.state_dict()}
-		#	torch.save(lstm_model, PATH1)
-		#	torch.save(lstm_model.state_dict(), PATH)
-		#	torch.save(checkpoint, PATH2)
+# 			PATH1 = "modelLSTM/entire_model3.pt"
+# 			PATH2 = "modelLSTM/dict3.pt"
+#             # Save
+# 			checkpoint = {'model': lstm_model,
+#            'state_dict': lstm_model.state_dict()}
+# 			torch.save(lstm_model, PATH1)
+# 			torch.save(lstm_model.state_dict(), PATH)
+# 			torch.save(checkpoint, PATH2)
             

@@ -44,7 +44,7 @@ model = tf.keras.models.Sequential([
   tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32, return_sequences=True)),
   tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32)),
   tf.keras.layers.Dense(1),
-  tf.keras.layers.Lambda(lambda x: x * 10.0)
+  tf.keras.layers.Lambda(lambda x: x * 60.0)
 ])
 
 
@@ -52,9 +52,21 @@ optimizer = tf.keras.optimizers.Adam(lr=1e-5)
 model.compile(loss=tf.keras.losses.Huber(),
               optimizer=optimizer,
               metrics=["mae"])
-model.fit(dataset, epochs=100)
+model.fit(dataset, epochs=300)
 
-model.evaluate(dataset_valid)
+forcast = model.predict(dataset_valid)
+forcast = forcast.reshape(-1)
+plot_series(time_valid[-5140:], x_valid[-5140:])
+plot_series(time_valid[-5140:], forcast)
+
+popravke_prethodni = x_valid[-window_size:]
+mi = []
+for i in range(1000):
+    lambda_dt = model.predict(popravke_prethodni[np.newaxis])
+    mi.append(int(lambda_dt.reshape(-1)))
+    popravke_prethodni = np.roll(popravke_prethodni, -1)
+    popravke_prethodni[-1] = lambda_dt
+plt.plot(mi)
 # forecast = []
 # for time in range(len(series) - window_size):
 #   forecast.append(model.predict(series[time:time + window_size][np.newaxis]))

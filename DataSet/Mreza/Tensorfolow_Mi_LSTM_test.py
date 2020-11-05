@@ -67,6 +67,7 @@ for i in range(1000):
     popravke_prethodni = np.roll(popravke_prethodni, -1)
     popravke_prethodni[-1] = lambda_dt
 plt.plot(mi)
+
 # forecast = []
 # for time in range(len(series) - window_size):
 #   forecast.append(model.predict(series[time:time + window_size][np.newaxis]))

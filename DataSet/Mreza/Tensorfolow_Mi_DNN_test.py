@@ -69,7 +69,7 @@ forecast = forecast[split_time-window_size:]
 forecast = np.array(forecast)
 forecast = forecast.reshape(1,-1)
 
-results = forecast
+results = forecast.reshape(-1)
 plt.figure(figsize=(10, 6))
 
 plot_series(time_valid, x_valid)
@@ -77,9 +77,11 @@ plot_series(time_valid, results)
 
 popravke_prethodni = x_valid[-window_size:]
 mi = []
-for i in range(100):
+for i in range(1000):
     lambda_dt = model.predict(popravke_prethodni[np.newaxis])
     mi.append(int(lambda_dt.reshape(-1)))
     popravke_prethodni = np.roll(popravke_prethodni, -1)
     popravke_prethodni[-1] = lambda_dt
 
+model.save('saved_model/my_model') 
+new_model = tf.keras.models.load_model('Tensorflow_Mi_model_DNN')

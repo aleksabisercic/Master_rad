@@ -100,8 +100,8 @@ def generate_times_opt(max_t, delta, vreme, Lambda):
 for i in range(int(run_time/60)): 
     lambda_dt = pred(model, popravke_prethodni)
     mi_ls.append(int(lambda_dt))
-    popravke_prethodni = np.roll(otkazi_prethodni, -1)
-    popravke_prethodni = otkazi_prethodni.reshape(-1,1)
+    popravke_prethodni = np.roll(popravke_prethodni, -1)
+    popravke_prethodni = popravke_prethodni.reshape(-1,1)
     popravke_prethodni[-1] = lambda_dt
  
     

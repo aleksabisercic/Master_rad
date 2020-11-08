@@ -57,6 +57,7 @@ Y = np.load('testY_podatci_za_predvidjanje_mi.npy')
 mi_ls = []
 lam_ls = []
 run_time =  10000
+max_tim = run_time
 def evaluate(model, test_loader):
     model.eval()
     outputs = []
@@ -104,23 +105,6 @@ for i in range(int(run_time/60)):
     popravke_prethodni = popravke_prethodni.reshape(-1,1)
     popravke_prethodni[-1] = lambda_dt
  
-    
-mi_ls = np.array(mi_ls).reshape(-1)
-mi_ls = mi_ls/2/15/24/60    
-vreme =  np.linspace(0, run_time, mi_ls.shape[0]) # instance za koje imamo lambda
-delta = 30                                         #dt na koj gledamo u simulaciji
-
-time = np.arange(delta,run_time, delta) 
-   
-mi_val_t = Lambda_interp(time,vreme,mi_ls) 
-
-tf = TimeFunction((time, mi_val_t), dt=delta)
-Psim = SimuInhomogeneousPoisson([tf], end_time = run_time, verbose = False)
-Psim.simulate()
-simulacija_mi = Psim.timestamps 
-#kako se generisu otkazi posle
-
-
 for i in range(int(run_time/60)): 
     lambda_dt = pred(model_lambda, otkazi_prethodni)
     lam_ls.append(int(lambda_dt))
@@ -129,39 +113,73 @@ for i in range(int(run_time/60)):
     otkazi_prethodni[-1] = lambda_dt
 
 lam_ls = np.array(lam_ls).reshape(-1)
-lam_ls = lam_ls/2/15/24/60    
-vreme =  np.linspace(0, run_time, lam_ls.shape[0]) # instance za koje imamo lambda
+lam_ls = lam_ls/15/24/60  
+
+mi_ls = np.array(mi_ls).reshape(-1)
+mi_ls = mi_ls/15/24/60     
+
 delta = 30                                         #dt na koj gledamo u simulaciji
 
-time = np.arange(delta,run_time, delta) 
-   
-lamb_val_t = Lambda_interp(time,vreme,lam_ls) 
+otkazi = [] #prvi clan iz simulacije, a sledeci je mi[-1] + Prvi izlaz iz simulacije
+popravke = []
 
-tf = TimeFunction((time, lamb_val_t), dt=delta)
-Psim = SimuInhomogeneousPoisson([tf], end_time = run_time, verbose = False)
-Psim.simulate()
-simulacija_lambd = Psim.timestamps 
-
-nova_lista = []
-simulacija_lambd = np.array(simulacija_lambd).reshape(-1)
-simulacija_mi = np.array(simulacija_mi).reshape(-1)
-for i in range(0, len(simulacija_lambd)):
-    m = 0
-    while m < len(simulacija_mi):
-        if simulacija_lambd[i] < simulacija_mi[m]:
-            nova_lista.append(simulacija_lambd[i])
-            nova_lista.append(simulacija_mi[m])
-            m = len(simulacija_mi) + 1
+try:
+    while True:
+        vreme_lam =  np.linspace(0, run_time, lam_ls.shape[0]) # instance za koje imamo lambda 
+        vreme_mi =  np.linspace(0, run_time, mi_ls.shape[0]) # instance za koje imamo lambda
+        time = np.arange(delta,run_time, delta)   
+        
+        #kako se generisu otkazi posle
+        lamb_val_t = Lambda_interp(time,vreme_lam,lam_ls) 
+        tf = TimeFunction((time, lamb_val_t), dt=delta)
+        Psim = SimuInhomogeneousPoisson([tf], end_time = run_time, verbose = False)
+        Psim.simulate()
+        simulacija_lambd = Psim.timestamps 
+        array_lam = np.array(simulacija_lambd)
+        array_lam = array_lam.reshape(-1)
+        if not popravke:
+            otkazi.append(int(array_lam[0]))
         else:
-            m += 1
+            otkazi.append(int(array_lam[0] + popravke[-1]))
             
-konacno = np.array(nova_lista).reshape(-1,2)
-ls = []
-for i in range(0,len(konacno)):
-    if i == len(konacno) - 1: continue
-    if konacno[i][1] > konacno[i+1][0]:
-        ls.append(i+1)
-    else:
-        continue
-a= 1
-novo_konacno = np.delete(konacno, ls, 0)
+        mi_val_t = Lambda_interp(time,vreme_mi,mi_ls) 
+        tf = TimeFunction((time, mi_val_t), dt=delta)
+        Psim = SimuInhomogeneousPoisson([tf], end_time = run_time, verbose = False)
+        Psim.simulate()
+        simulacija_mi = Psim.timestamps 
+        array_mi = np.array(simulacija_lambd)
+        array_mi = array_lam.reshape(-1)
+        popravke.append(int(array_mi[0] + otkazi[-1]))
+        
+        update_array = int(array_mi[0]/30)
+        lam_ls = lam_ls[update_array:]
+        mi_ls = mi_ls[update_array:]
+        
+        run_time = max_tim - popravke[-1]
+except: 
+    print(otkazi)
+    print(popravke)
+
+# nova_lista = []
+# simulacija_lambd = np.array(simulacija_lambd).reshape(-1)
+# simulacija_mi = np.array(simulacija_mi).reshape(-1)
+# for i in range(0, len(simulacija_lambd)):
+#     m = 0
+#     while m < len(simulacija_mi):
+#         if simulacija_lambd[i] < simulacija_mi[m]:
+#             nova_lista.append(simulacija_lambd[i])
+#             nova_lista.append(simulacija_mi[m])
+#             m = len(simulacija_mi) + 1
+#         else:
+#             m += 1
+            
+# konacno = np.array(nova_lista).reshape(-1,2)
+# ls = []
+# for i in range(0,len(konacno)):
+#     if i == len(konacno) - 1: continue
+#     if konacno[i][1] > konacno[i+1][0]:
+#         ls.append(i+1)
+#     else:
+#         continue
+# a= 1
+# novo_konacno = np.delete(konacno, ls, 0)

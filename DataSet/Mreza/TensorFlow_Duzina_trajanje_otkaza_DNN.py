@@ -48,7 +48,7 @@ for i in range (0,len(df.index)): #df['Vreme_zastoja']:
 series = np.array(lista).reshape(-1)
 labels_raw = np.array(lista1)
 time = np.arange(0, len(series))
-plot_series( time[100:500], series[100:500])
+plot_series( time[150:500], series[150:500])
 
 def plot_series(time, series, format="-", start=0, end=None):
     plt.plot(time[start:end], series[start:end], format)
@@ -81,14 +81,14 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.Dense(60, input_shape=[window_size], activation="relu"), 
     tf.keras.layers.Dense(15, activation="relu"), 
     tf.keras.layers.Dense(1),
-    tf.keras.layers.Lambda(lambda x: x * 600)
+    tf.keras.layers.Lambda(lambda x: x * 1000)
 ])
 # lr_schedule = tf.keras.callbacks.LearningRateScheduler(
 #     lambda epoch: 1e-8 * 10**(epoch / 20))
 # optimizer = tf.keras.optimizers.SGD(lr=1e-8, momentum=0.9)
 model.compile(loss='mse',
               optimizer=tf.keras.optimizers.Adam())
-history = model.fit(dataset, epochs=150)
+history = model.fit(dataset, epochs=500, verbose=0)
 
 loss = history.history['loss']
 epochs = range(len(loss))

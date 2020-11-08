@@ -68,6 +68,7 @@ def windowed_dataset(series, window_size, batch_size, shuffle_buffer):
   dataset = dataset.batch(batch_size).prefetch(1)
   return dataset
 
+
 def sliding_windows(datax, datay, seq_length):
     x = []
     y = []

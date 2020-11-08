@@ -77,6 +77,23 @@ def gen_mi(podatci2, seq_len, t):
     mi.append(sum(a[-seq_len:]))
     return mi
 
+def gen_lambda(podatci1, podatci2 ,seq_len, t):
+    a = np.zeros(podatci2[-1])
+    for i in podatci1:
+        a[0] = 1
+        if i == 0: continue
+        a[i] = 1
+    lamb = []
+    start = 0
+    end = seq_len
+    for i in range(int((len(a)-seq_len)/t)):
+        ls = a[start:end]
+        lamb.append(sum(ls))
+        start += t
+        end += t
+    lamb.append(sum(a[-seq_len:]))
+    return lamb
+
 def ploting(lambd, mi, graph_name): 
     plt.clf()
     plt.subplot(2, 1, 1)
@@ -93,14 +110,13 @@ def ploting(lambd, mi, graph_name):
 
 
 #seq_leng = np.random.uniform(300, 15*60*24, size = 100) 
-seq_leng = [ 15*24*60]
+seq_leng = [15*24*60]
 dt = [60]
 
 for seq_len in seq_leng:
     for t in dt:
-        mi =  gen_mi(podatci2, int(seq_len), t)
-        dataY = np.array(mi).reshape(-1, 1)
-        dataX = np.array(mi).reshape(1, -1)
-        test=0
-        
+        lamb =  gen_lambda(podatci1, podatci2, int(seq_len), t)
+        lamb_gen = np.array(lamb).reshape(-1, 1)
+        print(lamb_gen.shape, lamb_gen)
+        np.save('lambda_generisan_spreman_za_NN.npy', lamb_gen)
     

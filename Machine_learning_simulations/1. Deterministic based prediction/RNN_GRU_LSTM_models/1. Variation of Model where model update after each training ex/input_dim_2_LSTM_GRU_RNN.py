@@ -309,7 +309,7 @@ for seq_len in seq_length:
 			train_loader = DataLoader(train_data, shuffle=False, batch_size=batch_size, drop_last=True)
 			test_data = TensorDataset(torch.from_numpy(testX), torch.from_numpy(testY))
 			test_loader = DataLoader(test_data, shuffle=False, batch_size=1, drop_last=True)
-			lr = 0.0001
+			lr = 0.001
 			
 			#Training and Validating RNN_model
 #			rnn_model, rnn_training_loss = train(train_loader, lr, hid_dim,num_layers, model_type="RNN")

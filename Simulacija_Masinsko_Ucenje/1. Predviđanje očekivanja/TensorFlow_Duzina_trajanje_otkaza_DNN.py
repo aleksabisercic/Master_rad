@@ -28,7 +28,7 @@ def plot_series(time, series, format="-", start=0, end=None):
     plt.ylabel("Value")
     plt.grid(True)
     plt.show()
-df = pd.read_excel("Zastoji.xlsx", index_col = 0)
+df = pd.read_excel(r"C:\Users\Freedom\Documents\GitHub\Master_rad\DataSet\Zastoji.xlsx", index_col=0)
 df = df[df["Sistem"] == "BTD SchRs-800"]
 df = df.sort_values(by = ['Početak zastoja'])
 

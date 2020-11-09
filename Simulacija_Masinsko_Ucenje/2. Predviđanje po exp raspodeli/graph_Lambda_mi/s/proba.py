@@ -11,7 +11,7 @@ df  = pd.read_excel(r'C:\Users\Freedom\Documents\GitHub\Master_rad\DataSet\Mreza
 df = df[df["Sistem"] == "BTD SchRs-800"]
 df = df.sort_values(by=['Početak zastoja'])
 
-df = df[['Pocetak_zastoja_u_minutima', 'Vreme_zastoja', 'Vreme_rada', 'Kraj_zastoja_u_miutama']]
+df = pd.read_excel(r"C:\Users\Freedom\Documents\GitHub\Master_rad\DataSet\Zastoji.xlsx", index_col=0)
 
 k = int(len(df['Vreme_zastoja']))
 i = 0

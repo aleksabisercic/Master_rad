@@ -24,8 +24,8 @@ from sklearn.preprocessing import MinMaxScaler
 from pandas.plotting import register_matplotlib_converters
 from torch.utils.data import TensorDataset, DataLoader
 
-x = np.load('graph_Lambda_mi/x.npy')
-y = np.load('graph_Lambda_mi/y.npy')
+x = np.load(r'C:\Users\Freedom\Documents\GitHub\Master_rad\Simulacija_Masinsko_Ucenje\2. Predviđanje po exp raspodeli\graph_Lambda_mi/x.npy')
+y = np.load(r'C:\Users\Freedom\Documents\GitHub\Master_rad\Simulacija_Masinsko_Ucenje\2. Predviđanje po exp raspodeli\graph_Lambda_mi/y.npy')
 
 # torch.cuda.is_available() checks and returns a Boolean True if a GPU is available, else it'll return False
 is_cuda = torch.cuda.is_available()

@@ -15,6 +15,7 @@ import pickle
 import seaborn as sns
 import time
 
+from tensorflow import keras
 from sklearn import preprocessing
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import DataLoader
@@ -39,7 +40,7 @@ RANDOM_SEED = 42
 np.random.seed(RANDOM_SEED)
 torch.manual_seed(RANDOM_SEED)
 
-df = pd.read_excel("Zastoji.xlsx", index_col=0)
+df = pd.read_excel(r"C:\Users\Freedom\Documents\GitHub\Master_rad\DataSet\Zastoji.xlsx", index_col=0)
 df = df[df["Sistem"] == "BTD SchRs-800"]
 df = df.sort_values(by=['Početak zastoja'])
 
@@ -161,7 +162,7 @@ class RNNNet(nn.Module):
         return hidden
 
 
-def train(train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS=5, model_type="GRU"):
+def train(train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS=1, model_type="GRU"):
     # Setting common hyperparameters
     input_dim = next(iter(train_loader))[0].shape[2]
     output_dim = 1
@@ -226,10 +227,14 @@ def evaluate(model, test_loader):
         outputs.append(out.cpu().detach().numpy())
         targets.append(test_y.numpy())
     print("Evaluation Time: {}".format(str(time.clock()-start_time)))
-    for i in range(len(test_x)):
-        MSEloss = (outputs[0][i]-targets[0][i])**2
-        loss.append(MSEloss)
-    Loss = sum(loss)/len(loss)	
+    # for i in range(len(test_x)):
+    #     MSEloss = (outputs[0][i]-targets[0][i])**2
+    #     loss.append(MSEloss)
+    # Loss = sum(loss)/len(loss)	
+    outputs = np.array(outputs).reshape(-1,1)
+    targets = np.array(targets).reshape(-1,1)
+    loss = np.array(keras.losses.MSE(targets,outputs)).reshape(-1,1)
+    Loss = sum(loss)/len(loss)    
     print("Validation loss: {}".format(Loss))
     return outputs, targets, Loss
 

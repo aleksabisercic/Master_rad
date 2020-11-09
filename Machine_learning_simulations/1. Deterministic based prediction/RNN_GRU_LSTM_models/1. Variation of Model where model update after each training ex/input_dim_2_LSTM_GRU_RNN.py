@@ -170,7 +170,7 @@ class RNNNet(nn.Module):
         return hidden
 
 
-def train(  x, y, train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS=1, model_type="GRU"):
+def train(  x, y, train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS=30, model_type="GRU"):
     # Setting common hyperparameters
     input_dim = next(iter(train_loader))[0].shape[2]
     output_dim = 2

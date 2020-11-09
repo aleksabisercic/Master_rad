@@ -95,29 +95,31 @@ def gen_lambda(podatci1, podatci2 ,seq_len, t):
     lamb.append(sum(a[-seq_len:]))
     return lamb
 
-def ploting(lambd, mi, graph_name): 
+def ploting(lambd, mi): 
     plt.clf()
     plt.subplot(2, 1, 1)
     plt.plot(lambd, 'r-')
     plt.ylabel('oktz/intervalu')
     plt.xlabel('vreme') 
-    plt.title(graph_name)
+    plt.title('seq_leng = 15*24*60 min, dt = 30min')
     plt.subplot(2, 1, 2)
     plt.plot(mi, 'b-')
     plt.ylabel('popravki/intervalu')
     plt.xlabel('vreme') 
     plt.show()
-    plt.savefig('graph_Lambda_mi/' + graph_name + '.png')
+    plt.savefig('Numpy λ(t)(failure rate) and μ(t)(Repair rate)/' + 'λ(t)_and_μ(t)' + '.png')
 
 
 #seq_leng = np.random.uniform(300, 15*60*24, size = 100) 
 seq_leng = [15*24*60]
-dt = [60]
+dt = [30]
 
 for seq_len in seq_leng:
     for t in dt:
-        lamb =  gen_lambda(podatci1, podatci2, int(seq_len), t)
+        lamb, mi =  gen_lambda_and_mi(podatci1,podatci2, int(seq_len), t)
+        mi_gen = np.array(mi).reshape(-1, 1)
         lamb_gen = np.array(lamb).reshape(-1, 1)
-        print(lamb_gen.shape, lamb_gen)
-        np.save('lambda_generisan_spreman_za_NN.npy', lamb_gen)
-    
+        print(lamb_gen, mi_gen.shape)
+        np.save('Numpy λ(t)(failure rate) and μ(t)(Repair rate)\Failure_rates_for_NN.npy', lamb_gen)
+        np.save('Numpy λ(t)(failure rate) and μ(t)(Repair rate)\Repair_rates_for_NN.npy', mi_gen)
+        ploting(lamb_gen, mi_gen)

@@ -66,12 +66,12 @@ print(train_set)
 print(x_train.shape)
 
 model = tf.keras.models.Sequential([
-  tf.keras.layers.Conv1D(filters=32, kernel_size=5,
-                      strides=1, padding="causal",
-                      activation="relu",
-                      input_shape=[None, 1]),
-  tf.keras.layers.LSTM(64, return_sequences=True),
-  tf.keras.layers.LSTM(64, return_sequences=True),
+  # tf.keras.layers.Conv1D(filters=32, kernel_size=5,
+  #                     strides=1, padding="causal",
+  #                     activation="relu",
+  #                     input_shape=[None, 1]),
+  tf.keras.layers.LSTM(64, return_sequences=True, dropout=0.2),
+  tf.keras.layers.LSTM(64, return_sequences=True, dropout=0.2),
   tf.keras.layers.Dense(30, activation="relu"),
   tf.keras.layers.Dense(10, activation="relu"),
   tf.keras.layers.Dense(1),

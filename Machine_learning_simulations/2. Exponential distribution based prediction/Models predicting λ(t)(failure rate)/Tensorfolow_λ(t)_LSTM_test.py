@@ -8,8 +8,6 @@ import tensorflow as tf
 import matplotlib.pyplot as plt 
 import numpy as np
 
-
-series = np.load('mi_sirovi_podatci_izbrisi.npy') #mi_series
 def plot_series(time, series, format="-", start=0, end=None):
     plt.plot(time[start:end], series[start:end], format)
     plt.xlabel("Time")
@@ -24,15 +22,20 @@ def windowed_dataset(series, window_size, batch_size):
   dataset = dataset.batch(batch_size).prefetch(1)
   return dataset
 
-split_time = int(len(series)*0.8)
-time = np.arange(len(series))
+''' Loading  λ(t)(failure rate) generated from folder path '''
+series = np.load(r'C:\Users\Freedom\Documents\GitHub\Master_rad\Machine_learning_simulations\2. Exponential distribution based prediction\Generating λ(t)(failure rate) and μ(t)(Repair rate)\Numpy λ(t)(failure rate) and μ(t)(Repair rate)\Failure_rates_for_NN.npy') #λ(t)series
+
+
+series_faliur = series.reshape(-1) 
+split_time = int(len(series_faliur)*0.8)
+time = np.arange(len(series_faliur))
 time_train = time[:split_time]
-x_train = series[:split_time]
+x_train = series_faliur[:split_time]
 time_valid = time[split_time:]
-x_valid = series[split_time:]
+x_valid = series_faliur[split_time:]
 
 window_size = 50
-batch_size = 128
+batch_size = 512
 
 
 dataset_valid = windowed_dataset(x_valid, window_size, batch_size=x_valid.shape[0])  
@@ -52,21 +55,15 @@ optimizer = tf.keras.optimizers.Adam(lr=1e-5)
 model.compile(loss=tf.keras.losses.Huber(),
               optimizer=optimizer,
               metrics=["mae"])
-model.fit(dataset, epochs=300)
+model.fit(dataset, epochs=150)
+
+model.evaluate(dataset_valid)
 
 forcast = model.predict(dataset_valid)
 forcast = forcast.reshape(-1)
-plot_series(time_valid[-5140:], x_valid[-5140:])
-plot_series(time_valid[-5140:], forcast)
+plot_series(time_valid[:-window_size], x_valid[:-window_size])
+plot_series(time_valid[:-window_size], forcast)
 
-popravke_prethodni = x_valid[-window_size:]
-mi = []
-for i in range(1000):
-    lambda_dt = model.predict(popravke_prethodni[np.newaxis])
-    mi.append(int(lambda_dt.reshape(-1)))
-    popravke_prethodni = np.roll(popravke_prethodni, -1)
-    popravke_prethodni[-1] = lambda_dt
-plt.plot(mi)
 
 # forecast = []
 # for time in range(len(series) - window_size):

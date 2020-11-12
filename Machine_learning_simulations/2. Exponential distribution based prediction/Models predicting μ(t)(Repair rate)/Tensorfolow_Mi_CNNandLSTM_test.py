@@ -8,13 +8,17 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 
-series = np.load('mi_sirovi_podatci_izbrisi.npy') #mi_series
+''' Loading μ(t)(Repair rate) generated from folder path '''
+
+series = np.load(r'C:\Users\Freedom\Documents\GitHub\Master_rad\Machine_learning_simulations\2. Exponential distribution based prediction\Generating λ(t)(failure rate) and μ(t)(Repair rate)\Numpy λ(t)(failure rate) and μ(t)(Repair rate)\Repair_rates_for_NN.npy') 
+series = series.reshape(-1)
+
 def plot_series(time, series, format="-", start=0, end=None):
     plt.plot(time[start:end], series[start:end], format)
     plt.xlabel("Time")
     plt.ylabel("Value")
     plt.grid(True)
-    
+
 split_time = int(len(series)*0.8)
 time = np.arange(len(series))
 time_train = time[:split_time]
@@ -41,7 +45,7 @@ def model_forecast(model, series, window_size):
     return forecast
 
 window_size = 30
-batch_size = 128
+batch_size = 512
 shuffle_buffer_size = 1000
 train_set = windowed_dataset(x_train, window_size, batch_size, shuffle_buffer_size)
 print(train_set)
@@ -74,5 +78,5 @@ history = model.fit(train_set, epochs=100) #, callbacks=[lr_schedule])
 rnn_forecast = model_forecast(history.model, series[..., np.newaxis], window_size)
 rnn_forecast = rnn_forecast[split_time - window_size:-1, -1, 0]
 
-history.model.save('Tensorf_CNN_LSTM_mi_prediction') 
-new_model = tf.keras.models.load_model('Tensorf_CNN_LSTM_mi_prediction')
+# history.model.save('Tensorf_CNN_LSTM_mi_prediction') 
+# new_model = tf.keras.models.load_model('Tensorf_CNN_LSTM_mi_prediction')

@@ -16,7 +16,11 @@ import xlwt as xl
 import pickle
 from sklearn.metrics import accuracy_score
 
-series = np.load('mi_sirovi_podatci_izbrisi.npy') #mi_series
+''' Loading μ(t)(Repair rate) generated from folder path '''
+
+series = np.load(r'C:\Users\Freedom\Documents\GitHub\Master_rad\Machine_learning_simulations\2. Exponential distribution based prediction\Generating λ(t)(failure rate) and μ(t)(Repair rate)\Numpy λ(t)(failure rate) and μ(t)(Repair rate)\Repair_rates_for_NN.npy') 
+series = series.reshape(-1)
+
 def plot_series(time, series, format="-", start=0, end=None):
     plt.plot(time[start:end], series[start:end], format)
     plt.xlabel("Time")

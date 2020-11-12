@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Oct 21 23:20:37 2020
+Created on Wed Nov 11 17:31:31 2020
 
 @author: Freedom
 """
@@ -21,6 +21,7 @@ import xlwt as xl
 import pickle
 import seaborn as sns
 import time
+import scipy as sc
 
 from sklearn import preprocessing
 from sklearn.preprocessing import MinMaxScaler
@@ -31,9 +32,78 @@ from sklearn.preprocessing import MinMaxScaler
 from pandas.plotting import register_matplotlib_converters
 from torch.utils.data import TensorDataset, DataLoader
 
-x = np.load('x_mi.npy')
-y = np.load('y_mi.npy')
-#inspr
+sns.set(style='whitegrid', palette='muted', font_scale=1.2)
+
+HAPPY_COLORS_PALETTE = ["#01BEFE", "#FFDD00", "#FF7D00", "#FF006D", "#93D30C", "#8F00FF"]
+
+sns.set_palette(sns.color_palette(HAPPY_COLORS_PALETTE))
+
+rcParams['figure.figsize'] = 14, 10
+register_matplotlib_converters()
+
+RANDOM_SEED = 42
+np.random.seed(RANDOM_SEED)
+torch.manual_seed(RANDOM_SEED)
+
+df = pd.read_excel(r"C:\Users\Freedom\Documents\GitHub\Master_rad\DataSet\Zastoji.xlsx", index_col=0)
+df = df[df["Sistem"] == "BTD SchRs-800"]
+df = df.sort_values(by=['Početak zastoja'])
+
+df = df[['Pocetak_zastoja_u_minutima', 'Vreme_zastoja', 'Vreme_rada']]
+df.reset_index(inplace=True, drop=True)
+
+#drop outliers
+# z_scores = sc.stats.zscore(df)
+# abs_z_scores = np.abs(z_scores)
+# filtered_entries = (abs_z_scores < 3).all(axis=1)
+# new_df = df[filtered_entries]
+# new_df.reset_index(inplace=True, drop=True)
+# print(new_df)
+new_df = df
+# bottom 10 and upper 10 percentail of data drop
+
+lista = []
+lista1 = []
+
+for i in range(0, len(new_df.index)):  # df['Vreme_zastoja']:
+	if new_df["Vreme_zastoja"].iloc[i] > 2000:
+		continue
+	if new_df["Vreme_rada"].iloc[i] > 2000:
+		continue
+	lista1.append(new_df["Vreme_zastoja"].iloc[i])
+	lista1.append(new_df["Vreme_rada"].iloc[i])
+
+
+# Scaling the input data
+sc = MinMaxScaler()
+
+podatci = np.array(lista1)
+podatci2 = np.array(lista1)
+podatci = podatci.reshape(-1, 1)
+podatci1 = np.array(lista1)
+podatci1 = podatci1.reshape(-1, 1)
+#datax =  sc.fit_transform(podatci1)
+
+datay = podatci
+datax = podatci1
+
+
+# Obtaining the Scale for the labels(usage data) so that output can be re-scaled to actual value during evaluation
+
+def sliding_windows(datax, datay, seq_length):
+    x = []
+    y = []
+
+    for i in range(len(datax) - seq_length - 1):
+        if (i % 2) != 0: continue
+        _x = datax[i:(i + seq_length)]
+#        _x = preprocessing.normalize(_x)
+        _y = datay[i + seq_length + 1]
+        x.append(_x)
+        y.append(_y)			
+    y = np.array(y)
+    
+    return np.array(x), y.reshape(len(x),1)
 
 # torch.cuda.is_available() checks and returns a Boolean True if a GPU is available, else it'll return False
 is_cuda = torch.cuda.is_available()
@@ -109,7 +179,7 @@ class RNNNet(nn.Module):
         return hidden
 
 
-def train(train_loader, learn_rate, hidden_dim, number_of_layers, batch_size, EPOCHS=50, model_type="LSTM"):
+def train(train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS=150, model_type="GRU"):
     # Setting common hyperparameters
     input_dim = next(iter(train_loader))[0].shape[2]
     output_dim = 1
@@ -131,7 +201,6 @@ def train(train_loader, learn_rate, hidden_dim, number_of_layers, batch_size, EP
     print("Starting Training of {} model".format(model_type))
     epoch_times = []
     LOSS = []
-    outputs = []
     # Start training loop
     for epoch in range(1, EPOCHS + 1):  
         start_time = time.clock()
@@ -146,8 +215,6 @@ def train(train_loader, learn_rate, hidden_dim, number_of_layers, batch_size, EP
                 h = tuple([e.data for e in h])
             model.zero_grad()
             out, h = model(x.to(device).float(), h)
-            if epoch == 30:
-                outputs.append(out.cpu().detach().numpy())
             loss = criterion(out, label.to(device).float())
             loss.backward()
             optimizer.step()
@@ -156,14 +223,13 @@ def train(train_loader, learn_rate, hidden_dim, number_of_layers, batch_size, EP
                 print("Epoch {}......Step: {}/{}....... Average Loss for Epoch: {}".format(epoch, counter,
                                                                                            len(train_loader),
                                                                                            avg_loss / counter))
-        
         current_time = time.clock()
         LOSS.append((avg_loss / counter))
         print("Epoch {}/{} Done, Total Loss: {}".format(epoch, EPOCHS, avg_loss / len(train_loader)))
         print("Time Elapsed for Epoch: {} seconds".format(str(current_time - start_time)))
         epoch_times.append(current_time - start_time)
     #    print("Total Training Time: {} seconds".format(str(sum(epoch_times))))
-    return model, LOSS, outputs
+    return model, LOSS
 
 
 def evaluate(model, test_loader):
@@ -188,31 +254,31 @@ def evaluate(model, test_loader):
 seq_length =  [ 50 ]
 hidden_dim = [ 50  ]
 number_of_layers = [ 2 ]
-def ploting(outputs, targets): 
-    plt.clf()
-    plt.subplot(2, 1, 1)
-    plt.plot(outputs, 'r-')
-    plt.ylabel('oktz/intervalu')
-    plt.xlabel('vreme') 
-    plt.title('graph_name')
-    plt.subplot(2, 1, 2)
-    plt.plot(targets, 'b-')
-    plt.ylabel('popravki/intervalu')
-    plt.xlabel('vreme') 
-    plt.show()
-def ploting2(outputs, targets):
-    plt.plot(outputs, 'r-')
-    plt.ylabel('oktz/intervalu')
-    plt.xlabel('vreme') 
-    plt.plot(targets, 'b-')
-    plt.show()
-    
-counter = 1 
+
+wb = xl.Workbook ()
+ws1 = wb.add_sheet("RNN razultati")
+ws1_kolone = ["Ime simulacije", "Training L","Validation Loss" ]
+ws1.row(0).write(0, ws1_kolone[0])
+ws1.row(0).write(1, ws1_kolone[1])
+ws1.row(0).write(2, ws1_kolone[2])
+ws2 = wb.add_sheet("GRU razultati")
+ws2_kolone = ["Ime simulacije", "Training L","Validation Loss"]
+ws2.row(0).write(0, ws1_kolone[0])
+ws2.row(0).write(1, ws1_kolone[1])
+ws2.row(0).write(2, ws1_kolone[2])
+ws3 = wb.add_sheet("LSTM ruzultati")
+ws3_kolone = ["Ime simulacije", "Training L","Validation Loss"]
+ws3.row(0).write(0, ws1_kolone[0])
+ws3.row(0).write(1, ws1_kolone[1])
+ws3.row(0).write(2, ws1_kolone[2])
+counter = 1
 for seq_len in seq_length:
 	for hid_dim in hidden_dim:
 		for num_layers in number_of_layers:
 			
-			train_size = int(len(y)*0.7)
+			x, y = sliding_windows(datax, datay, seq_len)
+			
+			train_size = int(len(y) * 0.8)
 			test_size = len(y) - train_size
 			
 			dataX = np.array(x)
@@ -221,23 +287,58 @@ for seq_len in seq_length:
 			
 			trainY = np.array(y[0:train_size])
 			
-			testX = np.array(x[train_size:])
-			testY = np.array(y[train_size:])			
+			testX = np.array(x[train_size:len(x)])
+			testY = np.array(y[train_size:len(y)])
+			
 			#Data loader
-			batch_size = 512		
+			batch_size = 64		
 			train_data = TensorDataset(torch.from_numpy(trainX), torch.from_numpy(trainY))
-			train_loader = DataLoader(train_data, shuffle=False, batch_size=batch_size, drop_last=True)
+			train_loader = DataLoader(train_data, shuffle=True, batch_size=batch_size, drop_last=True)
 			test_data = TensorDataset(torch.from_numpy(testX), torch.from_numpy(testY))
-			test_loader = DataLoader(test_data, shuffle=False, batch_size=testY.shape[0], drop_last=True)
-			lr = 0.01
-						
-			#Training and Validating LSTM_model
-			lstm_model, lstm_training_loss, outputs = train(train_loader, lr, hid_dim,num_layers, batch_size, model_type="LSTM")
-			lstm_outputs, targets, lstm_val_loss = evaluate(lstm_model, test_loader)
-			PATH = "Mi_model.pt"
-			torch.save(lstm_model, PATH)
+			test_loader = DataLoader(test_data, shuffle=True, batch_size=testY.shape[0], drop_last=True)
+			lr = 0.0001
+			
+            #Training and Validating RNN_model
+			rnn_model, rnn_training_loss = train(train_loader, lr, hid_dim,num_layers, model_type="RNN")
+			rnn_outputs, targets, rnn_test_loss = evaluate(rnn_model, test_loader)
             
-			a = np.array(lstm_outputs).reshape(-1)   
-			b = np.array(targets).reshape(-1)   
-			ploting(a,b)
-			ploting2(a,b)
+			#Training and Validating GRU_model
+			gru_model, gru_training_loss = train(train_loader, lr, hid_dim,num_layers, model_type="GRU")
+			gru_outputs, targets, gru_test_loss = evaluate(gru_model, test_loader)
+#			PATH_gru = "modelRNN/2features predict 2 outputs GRU.pt"
+            
+			#Training and Validating LSTM_model
+			lstm_model, lstm_training_loss = train( train_loader, lr, hid_dim,num_layers, model_type="LSTM")
+			lstm_outputs, lstm_targets, lstm_test_loss = evaluate(lstm_model, test_loader)
+            
+			simulation_name = '2features predict 1 output (vreme rada)' 
+			pathRNN = 'modelRNN/'+ simulation_name + '.pt'
+			pathGRU = 'modelGRU/'+ simulation_name + '.pt'
+			pathLSTM = 'modelLSTM/'+ simulation_name + '.pt'
+            
+			'''Ime simulacije","Validation Loss", "Training L'''
+			#RNN
+			ws1.row(counter).write(0, simulation_name + "_" +'RNN')
+			ws1.row(counter).write(1, rnn_training_loss[-1])
+			ws1.row(counter).write(2, int(rnn_test_loss[-1]))
+
+			#save model parametre RNN
+			torch.save(rnn_model, pathRNN)
+			
+						#GRU
+			ws2.row(counter).write(0, simulation_name + "_" +'GRU')
+			ws2.row(counter).write(1, gru_training_loss[-1])
+			ws2.row(counter).write(2, int(gru_test_loss[-1]))
+
+			#save model parametre GRU
+			torch.save(gru_model, pathGRU)
+			
+						#LSTM
+			ws3.row(counter).write(0, simulation_name + "_" +'LSTM')
+			ws3.row(counter).write(1, lstm_training_loss[-1])
+			ws3.row(counter).write(2, int(lstm_test_loss[-1]))
+
+			#save model parametre LSTM
+			torch.save(lstm_model, pathLSTM)
+			
+wb.save("Excel tabels (results)/"+ simulation_name + ".xls")

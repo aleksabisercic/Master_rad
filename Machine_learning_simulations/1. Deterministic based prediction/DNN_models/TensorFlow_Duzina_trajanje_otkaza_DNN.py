@@ -32,7 +32,7 @@ df = pd.read_excel(r"C:\Users\Freedom\Documents\GitHub\Master_rad\DataSet\Zastoj
 df = df[df["Sistem"] == "BTD SchRs-800"]
 df = df.sort_values(by = ['Početak zastoja'])
 
-df = df[['Vreme_zastoja', 'Vrsta_zastoja' ]]
+df = df[['Vreme_zastoja', 'Vrsta_zastoja' , 'Vreme_rada']]
 df.reset_index(inplace = True, drop = True)
 
 
@@ -43,43 +43,50 @@ lista1 = []
 
 for i in range (0,len(df.index)): #df['Vreme_zastoja']:
 	lista.append(df["Vreme_zastoja"].iloc[i])
-	lista1.append(df["Vrsta_zastoja"].iloc[i])
-
+#	lista.append(df["Vrsta_zastoja"].iloc[i])
+	lista.append(df["Vreme_rada"].iloc[i])
+#	lista1.append(df["Vrsta_zastoja"].iloc[i])
+    
 series = np.array(lista).reshape(-1)
 labels_raw = np.array(lista1)
-time = np.arange(0, len(series))
-plot_series( time[150:500], series[150:500])
-
-def plot_series(time, series, format="-", start=0, end=None):
-    plt.plot(time[start:end], series[start:end], format)
-    plt.xlabel("Time")
-    plt.ylabel("Value")
-    plt.grid(True)
 
 def windowed_dataset(series, window_size, batch_size):
   dataset = tf.data.Dataset.from_tensor_slices(series)
-  dataset = dataset.window(window_size + 1, shift=1, drop_remainder=True)
+  dataset = dataset.window(window_size + 2, shift=2, drop_remainder=True)
   dataset = dataset.flat_map(lambda window: window.batch(window_size + 1))
-  dataset = dataset.map(lambda window: (window[:-1], window[-1]))
+  dataset = dataset.map(lambda window: (window[:-2], window[-2]))
   dataset = dataset.batch(batch_size).prefetch(1)
   return dataset
 
-split_time = int(len(series)*0.75)
-time = np.arange(len(series))
-time_train = time[:split_time]
-x_train = series[:split_time]
-time_valid = time[split_time:]
-x_valid = series[split_time:]
+def sliding_windows(datax, seq_length):
+    x = []
+    y = []
+
+    for i in range(len(datax) - seq_length - 1):
+        if (i % 2) != 0: continue
+        _x = datax[i:(i + seq_length)]
+#        _x = preprocessing.normalize(_x)
+        _y = datax[i + seq_length]
+        x.append(_x)
+        y.append(_y)			
+
+    return np.array(x), np.array(y).reshape(-1,1)
 
 window_size = 50
 batch_size = 52
 
-dataset = windowed_dataset(x_train, window_size, batch_size)
+x,y = sliding_windows(series,window_size )
 
-    
+split_time = int((x.shape[0])*0.8)
+time = np.arange(len(series))
+x_train = x[:split_time]
+y_train = y[:split_time]
+x_valid = x[split_time:]
+y_valid = y[split_time:]
+
 model = tf.keras.models.Sequential([
-    tf.keras.layers.Dense(60, input_shape=[window_size], activation="relu"), 
-    tf.keras.layers.Dense(15, activation="relu"), 
+    tf.keras.layers.Dense(60, input_shape = [x_train.shape[1]] ,activation="relu"), 
+    tf.keras.layers.Dense(30, activation="relu"), 
     tf.keras.layers.Dense(1),
     tf.keras.layers.Lambda(lambda x: x * 1000)
 ])
@@ -87,36 +94,36 @@ model = tf.keras.models.Sequential([
 #     lambda epoch: 1e-8 * 10**(epoch / 20))
 # optimizer = tf.keras.optimizers.SGD(lr=1e-8, momentum=0.9)
 model.compile(loss='mse',
-              optimizer=tf.keras.optimizers.Adam())
-history = model.fit(dataset, epochs=500, verbose=0)
+              optimizer=tf.keras.optimizers.Adam(), metrics=["mae"])
+history = model.fit(x_train, y_train, epochs=500, verbose=0, batch_size=batch_size, shuffle=False)
 
 loss = history.history['loss']
+print(loss[-1])
 epochs = range(len(loss))
 plt.plot(epochs, loss, 'b', label='Training Loss')
 plt.show()
 
 
-forecast = []
-for time in range(len(series) - window_size):
-  forecast.append(model.predict(series[time:time + window_size][np.newaxis]))
+rnn_eval = model.evaluate(x_valid, y_valid)
 
-forecast = forecast[split_time-window_size:]
-forecast = np.array(forecast)
-forecast = forecast.reshape(1,-1)
 
-results = forecast.reshape(-1)
-plt.figure(figsize=(10, 6))
+wb = xl.Workbook ()
+ws1 = wb.add_sheet("LSTM_Enc_Dec_razultati")
+ws1_kolone = ["Ime simulacije", "Training L","Validation Loss","Validation accuracy(MAE)" ]
+ws1.row(0).write(0, ws1_kolone[0])
+ws1.row(0).write(1, ws1_kolone[1])
+ws1.row(0).write(2, ws1_kolone[2])
+ws1.row(0).write(3, ws1_kolone[3])
 
-plot_series(time_valid, x_valid)
-plot_series(time_valid, results)
+simulation_name = 'TF_Duzina_trajanje_otkaza_DNN' 
+path = 'DNN model/'+ simulation_name + '.pt'
 
-popravke_prethodni = x_valid[-window_size:]
-mi = []
-for i in range(1000):
-    lambda_dt = model.predict(popravke_prethodni[np.newaxis])
-    mi.append(int(lambda_dt.reshape(-1)))
-    popravke_prethodni = np.roll(popravke_prethodni, -1)
-    popravke_prethodni[-1] = lambda_dt
-print(mi)
-# model.save('saved_model/my_model') 
-# new_model = tf.keras.models.load_model('Tensorflow_Mi_model_DNN')
+ws1.row(1).write(0, simulation_name + "_" +'RNN')
+ws1.row(1).write(1, history.history["loss"][-1])
+ws1.row(1).write(2, int(rnn_eval[0]))
+ws1.row(1).write(3, int(rnn_eval[1]))
+
+wb.save("Excel tabels (results)/"+ simulation_name + ".xls")
+
+model.save(path) 
+# new_model = tf.keras.models.load_model(path)

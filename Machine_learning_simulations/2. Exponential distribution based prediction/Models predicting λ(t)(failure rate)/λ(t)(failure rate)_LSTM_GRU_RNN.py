@@ -15,6 +15,7 @@ import pickle
 import seaborn as sns
 import time
 
+from tensorflow import keras
 from sklearn import preprocessing
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import DataLoader
@@ -24,8 +25,24 @@ from sklearn.preprocessing import MinMaxScaler
 from pandas.plotting import register_matplotlib_converters
 from torch.utils.data import TensorDataset, DataLoader
 
-x = np.load(r'C:\Users\Freedom\Documents\GitHub\Master_rad\Simulacija_Masinsko_Ucenje\2. Predviđanje po exp raspodeli\graph_Lambda_mi/x.npy')
-y = np.load(r'C:\Users\Freedom\Documents\GitHub\Master_rad\Simulacija_Masinsko_Ucenje\2. Predviđanje po exp raspodeli\graph_Lambda_mi/y.npy')
+''' Loading  λ(t)(failure rate) generated from folder path '''
+series = np.load(r'C:\Users\Freedom\Documents\GitHub\Master_rad\Machine_learning_simulations\2. Exponential distribution based prediction\Generating λ(t)(failure rate) and μ(t)(Repair rate)\Numpy λ(t)(failure rate) and μ(t)(Repair rate)\Failure_rates_for_NN.npy') #λ(t)series
+
+def sliding_windows(datax, datay, seq_length):
+    x = []
+    y = []
+
+    for i in range(len(datax) - seq_length - 1):
+        _x = datax[i:(i + seq_length)]
+        _y = datay[i + seq_length]
+        x.append(_x)
+        y.append(_y)			
+
+    return np.array(x), np.array(y)
+
+lambd = series
+dataY = np.array(lambd).reshape(-1, 1)
+dataX = np.array(lambd).reshape(-1, 1)
 
 # torch.cuda.is_available() checks and returns a Boolean True if a GPU is available, else it'll return False
 is_cuda = torch.cuda.is_available()
@@ -101,7 +118,7 @@ class RNNNet(nn.Module):
         return hidden
 
 
-def train(train_loader, learn_rate, hidden_dim, number_of_layers, batch_size, EPOCHS=30, model_type="LSTM"):
+def train( train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS=1, model_type="GRU"):
     # Setting common hyperparameters
     input_dim = next(iter(train_loader))[0].shape[2]
     output_dim = 1
@@ -123,7 +140,6 @@ def train(train_loader, learn_rate, hidden_dim, number_of_layers, batch_size, EP
     print("Starting Training of {} model".format(model_type))
     epoch_times = []
     LOSS = []
-    outputs = []
     # Start training loop
     for epoch in range(1, EPOCHS + 1):  
         start_time = time.clock()
@@ -138,91 +154,157 @@ def train(train_loader, learn_rate, hidden_dim, number_of_layers, batch_size, EP
                 h = tuple([e.data for e in h])
             model.zero_grad()
             out, h = model(x.to(device).float(), h)
-            if epoch == 30:
-                outputs.append(out.cpu().detach().numpy())
             loss = criterion(out, label.to(device).float())
             loss.backward()
             optimizer.step()
             avg_loss += loss.item()
-            if counter % 200 == 0:
-                print("Epoch {}......Step: {}/{}....... Average Loss for Epoch: {}".format(epoch, counter,
-                                                                                           len(train_loader),
-                                                                                           avg_loss / counter))
-        
+#            if counter % 200 == 0:
+ #               print("Epoch {} Average Loss for Epoch: {}".format(epoch, avg_loss / counter))
         current_time = time.clock()
         LOSS.append((avg_loss / counter))
-        print("Epoch {}/{} Done, Total Loss: {}".format(epoch, EPOCHS, avg_loss / len(train_loader)))
+        print("Epoch {}/{} Done, Total Loss: {}".format(epoch, EPOCHS, avg_loss / counter))
         print("Time Elapsed for Epoch: {} seconds".format(str(current_time - start_time)))
         epoch_times.append(current_time - start_time)
     #    print("Total Training Time: {} seconds".format(str(sum(epoch_times))))
-    return model, LOSS, outputs
+    return model, LOSS
 
+
+def evaluate_future_pred(model,testX, testY):
+    model.eval()
+    Loss = []
+    prediction = []
+    criterion = nn.MSELoss()
+    h = model.init_hidden(1)
+    for i in range(len(testY)):
+        test_X = testX[i]
+        test_X = np.expand_dims(test_X, axis=0)
+        test_X = torch.from_numpy(test_X)
+        test_Y = trainY[i]
+        test_Y = np.expand_dims(test_Y, axis=0)
+        test_Y = torch.from_numpy(test_Y)
+        out, h = model(test_X.to(device).float(), h)
+        loss = criterion(out, test_Y.to(device).float())
+        Loss.append(loss.item())
+        if i == (len(testY)-1): continue
+        testX[i+1] = testX[i] 
+        testX[i+1][-1] = out.detach().numpy()    
+        prediction.append(out.detach().numpy())
+    print("Validation loss: {}".format(sum(Loss)/len(Loss)))
+    return Loss, sum(Loss)/len(Loss), prediction
 
 def evaluate(model, test_loader):
     model.eval()
+    model.to(device)
     outputs = []
     targets = []
     start_time = time.clock()
     loss = []
-    h = model.init_hidden(testY.shape[0])
+    h = model.init_hidden(1)
     for test_x, test_y in test_loader:
         out, h = model(test_x.to(device).float(), h)
         outputs.append(out.cpu().detach().numpy())
         targets.append(test_y.numpy())
     print("Evaluation Time: {}".format(str(time.clock()-start_time)))
-    for i in range(len(test_x)):
-        MSEloss = (outputs[0][i]-targets[0][i])**2
-        loss.append(MSEloss)
-    Loss = sum(loss)/len(loss)	
+
+    outputs = np.array(outputs).reshape(-1,2)
+    targets = np.array(targets).reshape(-1,2)
+    loss =np.array(keras.losses.MSE(targets,outputs)).reshape(-1,1)
+    Loss = sum(loss)/len(loss)
     print("Validation loss: {}".format(Loss))
     return outputs, targets, Loss
 
 seq_length =  [ 50 ]
-hidden_dim = [ 50  ]
+hidden_dim = [ 20  ]
 number_of_layers = [ 2 ]
-def ploting(lambd, mi): 
-    plt.clf()
-    plt.subplot(2, 1, 1)
-    plt.plot(lambd, 'r-')
-    plt.ylabel('oktz/intervalu')
-    plt.xlabel('vreme') 
-    plt.title('graph_name')
-    plt.subplot(2, 1, 2)
-    plt.plot(mi, 'b-')
-    plt.ylabel('popravki/intervalu')
-    plt.xlabel('vreme') 
-    plt.show()
-    
+
+wb = xl.Workbook ()
+ws1 = wb.add_sheet("RNN razultati")
+ws1_kolone = ["Ime simulacije", "Training L","Validation Loss" ]
+ws1.row(0).write(0, ws1_kolone[0])
+ws1.row(0).write(1, ws1_kolone[1])
+ws1.row(0).write(2, ws1_kolone[2])
+ws2 = wb.add_sheet("GRU razultati")
+ws2_kolone = ["Ime simulacije", "Training L","Validation Loss"]
+ws2.row(0).write(0, ws1_kolone[0])
+ws2.row(0).write(1, ws1_kolone[1])
+ws2.row(0).write(2, ws1_kolone[2])
+ws3 = wb.add_sheet("LSTM ruzultati")
+ws3_kolone = ["Ime simulacije", "Training L","Validation Loss"]
+ws3.row(0).write(0, ws1_kolone[0])
+ws3.row(0).write(1, ws1_kolone[1])
+ws3.row(0).write(2, ws1_kolone[2])
+
 counter = 1 
 for seq_len in seq_length:
 	for hid_dim in hidden_dim:
 		for num_layers in number_of_layers:
 			
-			train_size = int(len(y)*0.7)
+			x, y = sliding_windows(dataX, dataY, seq_len)
+			
+			train_size = int(len(y) * 0.8)
 			test_size = len(y) - train_size
 			
 			dataX = np.array(x)
 			dataY = np.array(y)
 			trainX = np.array(x[0:train_size])
+#			trainX = torch.from_numpy(trainX)
 			
 			trainY = np.array(y[0:train_size])
+#			trainY = torch.from_numpy(trainY)
 			
-			testX = np.array(x[train_size:])
-			testY = np.array(y[train_size:])			
+			testX = np.array(x[train_size:len(x)])
+			testY = np.array(y[train_size:len(y)])
+			
 			#Data loader
 			batch_size = 512		
 			train_data = TensorDataset(torch.from_numpy(trainX), torch.from_numpy(trainY))
 			train_loader = DataLoader(train_data, shuffle=False, batch_size=batch_size, drop_last=True)
 			test_data = TensorDataset(torch.from_numpy(testX), torch.from_numpy(testY))
-			test_loader = DataLoader(test_data, shuffle=False, batch_size=testY.shape[0], drop_last=True)
-			lr = 0.01
-						
-			#Training and Validating LSTM_model
-			lstm_model, lstm_training_loss, outputs = train(train_loader, lr, hid_dim,num_layers, batch_size, model_type="LSTM")
-			lstm_outputs, targets, lstm_val_loss = evaluate(lstm_model, test_loader)
-			PATH = "Lambda_Mi_model.pt"
-			torch.save(lstm_model, PATH)
+			test_loader = DataLoader(test_data, shuffle=False, batch_size=1, drop_last=True)
+			lr = 0.0001
+			
+			#Training and Validating RNN_model
+			rnn_model, rnn_training_loss = train( train_loader, lr, hid_dim,num_layers, model_type="RNN")
+			rnn_outputs, targets, rnn_test_loss = evaluate(rnn_model, test_loader)
             
-			a = np.array(lstm_outputs).reshape(-1)   
-			b = np.array(targets).reshape(-1)   
-			ploting(a,b)
+			#Training and Validating GRU_model
+			gru_model, gru_training_loss = train(train_loader, lr, hid_dim,num_layers, model_type="GRU")
+			gru_outputs, targets, gru_test_loss = evaluate(gru_model, test_loader)
+#			PATH_gru = "modelRNN/2features predict 2 outputs GRU.pt"
+            
+			#Training and Validating LSTM_model
+			lstm_model, lstm_training_loss = train( train_loader, lr, hid_dim,num_layers, model_type="LSTM")
+			lstm_outputs, lstm_targets, lstm_test_loss = evaluate(lstm_model, test_loader)
+            
+			simulation_name = 'λ(t)(failure rate)_LSTM_GRU_RNN' 
+			pathRNN = 'modelRNN/'+ simulation_name + '.pt'
+			pathGRU = 'modelGRU/'+ simulation_name + '.pt'
+			pathLSTM = 'modelLSTM/'+ simulation_name + '.pt'
+            
+			'''Ime simulacije","Validation Loss", "Training L'''
+			#RNN
+			ws1.row(counter).write(0, simulation_name + "_" +'RNN')
+			ws1.row(counter).write(1, rnn_training_loss[-1])
+			ws1.row(counter).write(2, int(rnn_test_loss[-1]))
+
+			#save model parametre RNN
+			torch.save(rnn_model, pathRNN)
+			
+						#GRU
+			ws2.row(counter).write(0, simulation_name + "_" +'GRU')
+			ws2.row(counter).write(1, gru_training_loss[-1])
+			ws2.row(counter).write(2, int(gru_test_loss[-1]))
+
+			#save model parametre GRU
+			torch.save(gru_model, pathGRU)
+			
+						#LSTM
+			ws3.row(counter).write(0, simulation_name + "_" +'LSTM')
+			ws3.row(counter).write(1, lstm_training_loss[-1])
+			ws3.row(counter).write(2, int(lstm_test_loss[-1]))
+
+			#save model parametre LSTM
+			torch.save(lstm_model, pathLSTM)
+			
+wb.save("Excel tabels (results)/"+ simulation_name + ".xls")
+            

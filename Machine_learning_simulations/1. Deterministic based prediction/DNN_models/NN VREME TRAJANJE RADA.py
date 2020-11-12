@@ -123,6 +123,7 @@ def plot_accuracy_loss(training_results, graph_name):
     plt.xlabel('epochs') 
     plt.show()
     plt.savefig(graph_name)
+
 class Net(nn.Module):
     
     # Constructor
@@ -154,7 +155,7 @@ def accuracy(y1, yhat1):
     y_true = y1.detach().numpy()
     return (mean_squared_error(y_true, y_pred))
 
-def train( model, criterion, train_loader,validation_loader, optimizer, epochs=500):
+def train( model, criterion, train_loader,validation_loader, optimizer, epochs=1):
  #   LOSS = []
 #    ACC = []
     useful_stuff = {'training_loss': [],'validation_accuracy': []}  
@@ -179,13 +180,13 @@ def train( model, criterion, train_loader,validation_loader, optimizer, epochs=5
                 print(loss1)			
             useful_stuff['validation_accuracy'].append(loss1.item())
 
-    return useful_stuff  
+    return useful_stuff, model 
 
 #dropout   
-n =  [ 100, 200, 300, 50 ]
-a1 = [ 100, 50, 15  ]
-a2 = [ 100, 15 ]
-a3 = [ 15 ]
+n =  [ 50 ]
+a1 = [ 40  ]
+a2 = [ 30]
+a3 = [ 10 ]
 
 wb = xl.Workbook ()
 ws1 = wb.add_sheet("Rezultat simulacije")
@@ -204,17 +205,16 @@ for l in n:
 				train_data = NNtDataset( x1, Y1 )
 				test_data = NNtDataset( x2, Y2 )
 				# dataloaders
-				train_loader = DataLoader(dataset = train_data, batch_size = 512,  shuffle=False) 
+				train_loader = DataLoader(dataset = train_data, batch_size = 56,  shuffle=False) #da li sam dobro razumeo batch size
 				validation_loader = DataLoader(dataset = test_data, batch_size = Y2.shape[0], shuffle=False)
 				Layers = [2*l, i,j,k, 1] 
 				model = Net(Layers, p=0)
-				learning_rate = 0.005
+				learning_rate = 0.001
 				optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate) #adam
 				criterion = nn.MSELoss() #nadji mean square error	
-				training_results = train(model, criterion, train_loader, validation_loader, optimizer, epochs=250)
-				simulation_name = str(i) +'_'+str(j)+'_'+str(k)+'_'+str(l)+  '_' +'t_rada'
-				graph_name = 'graph/'+ simulation_name + '.png'
-				pickle_name = 'pikl/'+ simulation_name + '.obj'
+				training_results, nn_model = train(model, criterion, train_loader, validation_loader, optimizer, epochs=300)
+				simulation_name = 'NN_Vreme_trajanje_rada'
+				graph_name = 'DNN model/'+'graphNN/'+ simulation_name + '.png'
 				#ispisi poslednji iz exel tabele
 				last_element = training_results['validation_accuracy'][-1]
 				min_element = min(training_results['validation_accuracy'])
@@ -222,9 +222,10 @@ for l in n:
 				ws1.row(counter).write(0, simulation_name)
 				ws1.row(counter).write(1, last_element)
 				ws1.row(counter).write(2, min_element)
-				ws1.row(counter).write(3, mean_element)
 				#pikl u poseban folder (kao objekat)
-				pickle.dump(model, open(pickle_name , 'wb'))
-				plot_accuracy_loss(training_results,graph_name )
+				PathNN = 'DNN model/'+ simulation_name + '.pt'
+				torch.save(nn_model, PathNN)
+#				plot_accuracy_loss(training_results,graph_name )
 				counter += 1
-wb.save("Rezultati_NN1.xls")			 
+wb.save("Excel tabels (results)\Rezultati_DNN_vreme_rada_torch.xls")		
+		 

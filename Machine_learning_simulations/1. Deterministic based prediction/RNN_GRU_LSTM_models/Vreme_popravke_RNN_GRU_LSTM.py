@@ -162,7 +162,7 @@ class RNNNet(nn.Module):
         return hidden
 
 
-def train(train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS=1, model_type="GRU"):
+def train(train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS=150, model_type="GRU"):
     # Setting common hyperparameters
     input_dim = next(iter(train_loader))[0].shape[2]
     output_dim = 1
@@ -244,24 +244,20 @@ number_of_layers = [ 2 ]
 
 wb = xl.Workbook ()
 ws1 = wb.add_sheet("RNN razultati")
-ws1_kolone = ["Ime simulacije","Validation Loss", "Training L", "Srednja vrednost rezultat" ]
+ws1_kolone = ["Ime simulacije", "Training L","Validation Loss" ]
 ws1.row(0).write(0, ws1_kolone[0])
 ws1.row(0).write(1, ws1_kolone[1])
 ws1.row(0).write(2, ws1_kolone[2])
-ws1.row(0).write(3, ws1_kolone[3])
 ws2 = wb.add_sheet("GRU razultati")
-ws2_kolone = ["Ime simulacije","Poslednji rezultat", "Najmanji rezultat", "Srednja vrednost rezultat" ]
+ws2_kolone = ["Ime simulacije", "Training L","Validation Loss"]
 ws2.row(0).write(0, ws1_kolone[0])
 ws2.row(0).write(1, ws1_kolone[1])
 ws2.row(0).write(2, ws1_kolone[2])
-ws2.row(0).write(3, ws1_kolone[3])
 ws3 = wb.add_sheet("LSTM ruzultati")
-ws3_kolone = ["Ime simulacije","Poslednji rezultat", "Najmanji rezultat", "Srednja vrednost rezultat" ]
+ws3_kolone = ["Ime simulacije", "Training L","Validation Loss"]
 ws3.row(0).write(0, ws1_kolone[0])
 ws3.row(0).write(1, ws1_kolone[1])
 ws3.row(0).write(2, ws1_kolone[2])
-ws3.row(0).write(3, ws1_kolone[3])
-
 
 counter = 1 
 for seq_len in seq_length:
@@ -270,7 +266,7 @@ for seq_len in seq_length:
 			
 			x, y = sliding_windows(datax, datay, seq_len)
 			
-			train_size = int(len(y) * 0.9)
+			train_size = int(len(y) * 0.8)
 			test_size = len(y) - train_size
 			
 			dataX = np.array(x)
@@ -283,65 +279,52 @@ for seq_len in seq_length:
 			testY = np.array(y[train_size:len(y)])
 			
 			#Data loader
-			batch_size = 128		
+			batch_size = 64		
 			train_data = TensorDataset(torch.from_numpy(trainX), torch.from_numpy(trainY))
-			train_loader = DataLoader(train_data, shuffle=True, batch_size=batch_size, drop_last=True)
+			train_loader = DataLoader(train_data, shuffle=False, batch_size=batch_size, drop_last=True)
 			test_data = TensorDataset(torch.from_numpy(testX), torch.from_numpy(testY))
-			test_loader = DataLoader(test_data, shuffle=True, batch_size=testY.shape[0], drop_last=True)
-			lr = 0.001
+			test_loader = DataLoader(test_data, shuffle=False, batch_size=testY.shape[0], drop_last=True)
+			lr = 0.0001
 			
 			#Training and Validating RNN_model
 			rnn_model, rnn_training_loss = train(train_loader, lr, hid_dim,num_layers, model_type="RNN")
-			rnn_outputs, targets, rnn_val_loss = evaluate(rnn_model, test_loader)
+			rnn_outputs, targets, rnn_test_loss = evaluate(rnn_model, test_loader)
 			
 			#Training and Validating GRU_model
 			gru_model, gru_training_loss = train(train_loader, lr, hid_dim,num_layers, model_type="GRU")
-			gru_outputs, targets, gru_val_loss = evaluate(gru_model, test_loader)
+			gru_outputs, targets, gru_test_loss = evaluate(gru_model, test_loader)
 			
 			#Training and Validating LSTM_model
 			lstm_model, lstm_training_loss = train(train_loader, lr, hid_dim,num_layers, model_type="LSTM")
-			lstm_outputs, targets, lstm_val_loss = evaluate(lstm_model, test_loader)
+			lstm_outputs, targets, lstm_test_loss = evaluate(lstm_model, test_loader)
 			
-			simulation_name = 'seq_len' + '_' + str(seq_len) + 'hid_dim' + '_' +str(hid_dim) + 'num_layers' + '_' + str(num_layers)
+			simulation_name = 'Vreme_popravke_(samo)_RNN_GRU_LSTM'
 			pathRNN = 'modelRNN/'+ simulation_name + '.pth'
 			pathGRU = 'modelGRU/'+ simulation_name + '.pth'
 			pathLSTM = 'modelLSTM/'+ simulation_name + '.pth'
 
-			#RNN
-			last_element = rnn_val_loss[-1]
-			min_element = rnn_training_loss[-1]
-			mean_element = 'Za sada nista'
+            			#RNN
 			ws1.row(counter).write(0, simulation_name + "_" +'RNN')
-			ws1.row(counter).write(1, last_element)
-			ws1.row(counter).write(2, min_element)
-			ws1.row(counter).write(3, mean_element)
+			ws1.row(counter).write(1, rnn_training_loss[-1])
+			ws1.row(counter).write(2, int(rnn_test_loss[-1]))
 
 			#save model parametre RNN
-			torch.save(rnn_model.state_dict(), pathRNN)
+			torch.save(rnn_model, pathRNN)
 			
 						#GRU
-			last_element = gru_val_loss[-1]
-			min_element = gru_training_loss[-1]
-			mean_element = 'Za sada nista'
-			ws2.row(counter).write(0, simulation_name + "_" +'RNN')
-			ws2.row(counter).write(1, last_element)
-			ws2.row(counter).write(2, min_element)
-			ws2.row(counter).write(3, mean_element)
+			ws2.row(counter).write(0, simulation_name + "_" +'GRU')
+			ws2.row(counter).write(1, gru_training_loss[-1])
+			ws2.row(counter).write(2, int(gru_test_loss[-1]))
 
 			#save model parametre GRU
-			torch.save(gru_model.state_dict(), pathGRU)
+			torch.save(gru_model, pathGRU)
 			
 						#LSTM
-			last_element = lstm_val_loss[-1]
-			min_element = lstm_training_loss[-1]
-			mean_element = 'Za sada nista'
-			ws3.row(counter).write(0, simulation_name + "_" +'RNN')
-			ws3.row(counter).write(1, last_element)
-			ws3.row(counter).write(2, min_element)
-			ws3.row(counter).write(3, mean_element)
+			ws3.row(counter).write(0, simulation_name + "_" +'LSTM')
+			ws3.row(counter).write(1, lstm_training_loss[-1])
+			ws3.row(counter).write(2, int(lstm_test_loss[-1]))
 
 			#save model parametre LSTM
-			torch.save(lstm_model.state_dict(), pathLSTM)
+			torch.save(lstm_model, pathLSTM)
 			
-			counter += 1
-wb.save("Rezultati_RNN_LSTM_GRU.xls")
+wb.save("Excel tabels (results)/"+ simulation_name + ".xls")

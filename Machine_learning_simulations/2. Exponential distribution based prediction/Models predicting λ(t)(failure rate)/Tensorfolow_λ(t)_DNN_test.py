@@ -16,7 +16,6 @@ import xlwt as xl
 import pickle
 from sklearn.metrics import accuracy_score
 
-series = np.load('mi_sirovi_podatci_izbrisi.npy') #mi_series
 def plot_series(time, series, format="-", start=0, end=None):
     plt.plot(time[start:end], series[start:end], format)
     plt.xlabel("Time")
@@ -31,18 +30,22 @@ def windowed_dataset(series, window_size, batch_size):
   dataset = dataset.batch(batch_size).prefetch(1)
   return dataset
 
-split_time = int(len(series)*0.75)
-time = np.arange(len(series))
+''' Loading  λ(t)(failure rate) generated from folder path '''
+series = np.load(r'C:\Users\Freedom\Documents\GitHub\Master_rad\Machine_learning_simulations\2. Exponential distribution based prediction\Generating λ(t)(failure rate) and μ(t)(Repair rate)\Numpy λ(t)(failure rate) and μ(t)(Repair rate)\Failure_rates_for_NN.npy')
+
+series_faliur = series.reshape(-1) 
+split_time = int(len(series_faliur)*0.8)
+time = np.arange(len(series_faliur))
 time_train = time[:split_time]
-x_train = series[:split_time]
+x_train = series_faliur[:split_time]
 time_valid = time[split_time:]
-x_valid = series[split_time:]
+x_valid = series_faliur[split_time:]
 
 window_size = 50
-batch_size = 52
+batch_size = 256
 
 dataset = windowed_dataset(x_train, window_size, batch_size)
-
+validation_dataset = windowed_dataset(x_valid, window_size, batch_size = len(x_valid))
     
 model = tf.keras.models.Sequential([
     tf.keras.layers.Dense(60, input_shape=[window_size], activation="relu"), 
@@ -54,34 +57,23 @@ model = tf.keras.models.Sequential([
 # optimizer = tf.keras.optimizers.SGD(lr=1e-8, momentum=0.9)
 model.compile(loss='mse',
               optimizer=tf.keras.optimizers.Adam())
-history = model.fit(dataset, epochs=150)
+history = model.fit(dataset, epochs=1)
 
 loss = history.history['loss']
 epochs = range(len(loss))
 plt.plot(epochs, loss, 'b', label='Training Loss')
 plt.show()
 
-forecast = []
-for time in range(len(series) - window_size):
-  forecast.append(model.predict(series[time:time + window_size][np.newaxis]))
+model.evaluate(validation_dataset)
 
-forecast = forecast[split_time-window_size:]
-forecast = np.array(forecast)
-forecast = forecast.reshape(1,-1)
-
-results = forecast.reshape(-1)
+for x,y in validation_dataset:
+    results = model.predict(x)
+results = results.reshape(-1)
 plt.figure(figsize=(10, 6))
 
-plot_series(time_valid, x_valid)
-plot_series(time_valid, results)
+plot_series(time_valid[-10330:], x_valid[-10330:])
+plot_series(time_valid[-10330:], results[-10330:])
 
-popravke_prethodni = x_valid[-window_size:]
-mi = []
-for i in range(1000):
-    lambda_dt = model.predict(popravke_prethodni[np.newaxis])
-    mi.append(int(lambda_dt.reshape(-1)))
-    popravke_prethodni = np.roll(popravke_prethodni, -1)
-    popravke_prethodni[-1] = lambda_dt
 
-model.save('saved_model/my_model') 
-new_model = tf.keras.models.load_model('Tensorflow_Mi_model_DNN')
+# model.save('saved_model/my_model') 
+# new_model = tf.keras.models.load_model('Tensorflow_Mi_model_DNN')

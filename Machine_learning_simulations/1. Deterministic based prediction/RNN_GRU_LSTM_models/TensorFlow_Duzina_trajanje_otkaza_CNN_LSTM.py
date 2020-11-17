@@ -87,8 +87,9 @@ model.compile(loss=tf.keras.losses.Huber(),
               metrics=["mae"])
 history = model.fit(train_set, epochs=100 , callbacks=[lr_schedule])
 
-# plt.semilogx(history.history["lr"], history.history["loss"])
-# plt.axis([1e-8, 1e-4, 0, 60])
+plt.semilogx(history.history["lr"], history.history["loss"])
+plt.axis([1e-8, 1e-4, 0, 60])
+
 rnn_forecast = model_forecast(history.model, series[..., np.newaxis], window_size)
 rnn_forecast = rnn_forecast[split_time - window_size:-1, -1, 0]
 

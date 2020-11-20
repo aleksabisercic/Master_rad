@@ -8,6 +8,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import xlwt as xl
 
 df = pd.read_excel(r"C:\Users\Freedom\Documents\GitHub\Master_rad\DataSet\Zastoji.xlsx", index_col=0)
 df = df[df["Sistem"] == "BTD SchRs-800"]
@@ -40,12 +41,11 @@ x_train = series[:split_time]
 time_valid = time[split_time:]
 x_valid = series[split_time:]
 
-def windowed_dataset(series, window_size, batch_size, shuffle_buffer):
+def windowed_dataset(series, window_size, batch_size):
     series = tf.expand_dims(series, axis=-1)
     ds = tf.data.Dataset.from_tensor_slices(series)
     ds = ds.window(window_size + 1, shift=1, drop_remainder=True)
     ds = ds.flat_map(lambda w: w.batch(window_size + 1))
-    ds = ds.shuffle(shuffle_buffer)
     ds = ds.map(lambda w: (w[:-1], w[1:]))
     return ds.batch(batch_size).prefetch(1)
 
@@ -60,8 +60,9 @@ def model_forecast(model, series, window_size):
 
 window_size = 50
 batch_size = 32
-shuffle_buffer_size = 1000
-train_set = windowed_dataset(x_train, window_size, batch_size, shuffle_buffer_size)
+shuffle_buffer_size = 1
+train_set = windowed_dataset(x_train, window_size, batch_size)
+val_set = windowed_dataset(x_valid, window_size, batch_size)
 print(train_set)
 print(x_train.shape)
 
@@ -78,20 +79,39 @@ model = tf.keras.models.Sequential([
   tf.keras.layers.Lambda(lambda x: x * 70)
 ])
 
-lr_schedule = tf.keras.callbacks.LearningRateScheduler(
-     lambda epoch: 1e-4 / 10**(epoch / 20))
+# lr_schedule = tf.keras.callbacks.LearningRateScheduler(
+#      lambda epoch: 1e-4 / 10**(epoch / 20))
 
 optimizer = tf.keras.optimizers.Adam(lr=1e-4)
 model.compile(loss=tf.keras.losses.Huber(),
               optimizer=optimizer,
               metrics=["mae"])
-history = model.fit(train_set, epochs=100 , callbacks=[lr_schedule])
+model.fit(train_set, epochs=10)
+# history = model.fit(train_set, epochs=100 )#, callbacks=[lr_schedule])
 
-plt.semilogx(history.history["lr"], history.history["loss"])
-plt.axis([1e-8, 1e-4, 0, 60])
+# plt.semilogx(history.history["lr"], history.history["loss"])
+# plt.axis([1e-8, 1e-4, 0, 60])
+rnn_eval = model.evaluate(val_set)
+# rnn_forecast = model_forecast(history.model, series[..., np.newaxis], window_size)
+# rnn_forecast = rnn_forecast[split_time - window_size:-1, -1, 0]
 
-rnn_forecast = model_forecast(history.model, series[..., np.newaxis], window_size)
-rnn_forecast = rnn_forecast[split_time - window_size:-1, -1, 0]
 
-history.model.save('Tensorf_CNN_LSTM_mi_prediction') 
-new_model = tf.keras.models.load_model('Tensorf_CNN_LSTM_mi_prediction')
+# wb = xl.Workbook ()
+# ws1 = wb.add_sheet("LSTM_Enc_Dec_razultati")
+# ws1_kolone = ["Ime simulacije", "Training L","Validation Loss","Validation accuracy(MAE)" ]
+# ws1.row(0).write(0, ws1_kolone[0])
+# ws1.row(0).write(1, ws1_kolone[1])
+# ws1.row(0).write(2, ws1_kolone[2])
+# ws1.row(0).write(3, ws1_kolone[3])
+
+# simulation_name = 'LSTM encoder_decoder Multivere Timeseries' 
+# path = 'modelLSTM/'+ simulation_name + '.pt'
+
+# ws1.row(1).write(0, simulation_name + "_" +'RNN')
+# ws1.row(1).write(1, history.history["loss"][-1])
+# ws1.row(1).write(2, int(rnn_eval[0]))
+# ws1.row(1).write(3, int(rnn_eval[1]))
+
+# wb.save("Excel tabels (results)/"+ simulation_name + ".xls")
+
+# model.save(path)

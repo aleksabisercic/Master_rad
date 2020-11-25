@@ -35,7 +35,7 @@ sns.set_palette(sns.color_palette(HAPPY_COLORS_PALETTE))
 rcParams['figure.figsize'] = 14, 10
 register_matplotlib_converters()
 
-df = pd.read_excel(r"C:\Users\Freedom\Documents\GitHub\Master_rad\DataSet\Zastoji.xlsx", index_col=0)
+df = pd.read_excel("Zastoji.xlsx", index_col=0)
 df = df[df["Sistem"] == "BTD SchRs-800"]
 df = df.sort_values(by=['Početak zastoja'])
 
@@ -171,7 +171,7 @@ class RNNNet(nn.Module):
         return hidden
 
 
-def train(  x, y, train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS=150, model_type="GRU"):
+def train(  x, y, train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS=500, model_type="GRU"):
     # Setting common hyperparameters
     input_dim = next(iter(train_loader))[0].shape[2]
     output_dim = 2
@@ -191,11 +191,9 @@ def train(  x, y, train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS
 
     model.train()
     print("Starting Training of {} model".format(model_type))
-    epoch_times = []
     LOSS = []
     # Start training loop
     for epoch in range(1, EPOCHS + 1):  
-        start_time = time.clock()
         h = model.init_hidden(1)
         avg_loss = 0.
         counter = 0
@@ -225,11 +223,8 @@ def train(  x, y, train_loader, learn_rate, hidden_dim, number_of_layers, EPOCHS
             avg_loss += loss.item()
 #            if counter % 200 == 0:
  #               print("Epoch {} Average Loss for Epoch: {}".format(epoch, avg_loss / counter))
-        current_time = time.clock()
         LOSS.append((avg_loss / counter))
         print("Epoch {}/{} Done, Total Loss: {}".format(epoch, EPOCHS, avg_loss / len(trainY)))
-        print("Time Elapsed for Epoch: {} seconds".format(str(current_time - start_time)))
-        epoch_times.append(current_time - start_time)
     #    print("Total Training Time: {} seconds".format(str(sum(epoch_times))))
     return model, LOSS
 
@@ -262,14 +257,12 @@ def evaluate(model, test_loader):
     model.to(device)
     outputs = []
     targets = []
-    start_time = time.clock()
     loss = []
     h = model.init_hidden(1)
     for test_x, test_y in test_loader:
         out, h = model(test_x.to(device).float(), h)
         outputs.append(out.cpu().detach().numpy())
         targets.append(test_y.numpy())
-    print("Evaluation Time: {}".format(str(time.clock()-start_time)))
 
     outputs = np.array(outputs).reshape(-1,2)
     targets = np.array(targets).reshape(-1,2)
@@ -321,19 +314,19 @@ for seq_len in seq_length:
 			testY = np.array(y[train_size:len(y)])
 			
 			#Data loader
-			batch_size = 128		
+			batch_size = 32		
 			train_data = TensorDataset(torch.from_numpy(trainX), torch.from_numpy(trainY))
 			train_loader = DataLoader(train_data, shuffle=False, batch_size=batch_size, drop_last=True)
 			test_data = TensorDataset(torch.from_numpy(testX), torch.from_numpy(testY))
 			test_loader = DataLoader(test_data, shuffle=False, batch_size=1, drop_last=True)
 			lr = 0.001
 
-			rnn_model, rnn_training_loss = train(trainX, trainY, train_loader, lr, hid_dim,num_layers, model_type="RNN")
-			rnn_outputs, targets, rnn_test_loss = evaluate(rnn_model, test_loader)
+# 			rnn_model, rnn_training_loss = train(trainX, trainY, train_loader, lr, hid_dim,num_layers, model_type="RNN")
+# 			rnn_outputs, targets, rnn_test_loss = evaluate(rnn_model, test_loader)
             
-			#Training and Validating GRU_model
-			gru_model, gru_training_loss = train(trainX, trainY, train_loader, lr, hid_dim,num_layers, model_type="GRU")
-			gru_outputs, targets, gru_test_loss = evaluate(gru_model, test_loader)
+# 			#Training and Validating GRU_model
+# 			gru_model, gru_training_loss = train(trainX, trainY, train_loader, lr, hid_dim,num_layers, model_type="GRU")
+# 			gru_outputs, targets, gru_test_loss = evaluate(gru_model, test_loader)
 #			PATH_gru = "modelRNN/2features predict 2 outputs GRU.pt"
             
 			#Training and Validating LSTM_model
@@ -346,21 +339,21 @@ for seq_len in seq_length:
 			pathLSTM = 'modelLSTM/'+ simulation_name + '.pt'
             
 			'''Ime simulacije","Validation Loss", "Training L'''
-			#RNN
-			ws1.row(counter).write(0, simulation_name + "_" +'RNN')
-			ws1.row(counter).write(1, rnn_training_loss[-1])
-			ws1.row(counter).write(2, int(rnn_test_loss[-1]))
+# 			#RNN
+# 			ws1.row(counter).write(0, simulation_name + "_" +'RNN')
+# 			ws1.row(counter).write(1, rnn_training_loss[-1])
+# 			ws1.row(counter).write(2, int(rnn_test_loss[-1]))
 
-			#save model parametre RNN
-			torch.save(rnn_model, pathRNN)
-			
-						#GRU
-			ws2.row(counter).write(0, simulation_name + "_" +'GRU')
-			ws2.row(counter).write(1, gru_training_loss[-1])
-			ws2.row(counter).write(2, int(gru_test_loss[-1]))
+# 			#save model parametre RNN
+# 			torch.save(rnn_model, pathRNN)
+# 			
+# 						#GRU
+# 			ws2.row(counter).write(0, simulation_name + "_" +'GRU')
+# 			ws2.row(counter).write(1, gru_training_loss[-1])
+# 			ws2.row(counter).write(2, int(gru_test_loss[-1]))
 
-			#save model parametre GRU
-			torch.save(gru_model, pathGRU)
+# 			#save model parametre GRU
+# 			torch.save(gru_model, pathGRU)
 			
 						#LSTM
 			ws3.row(counter).write(0, simulation_name + "_" +'LSTM')

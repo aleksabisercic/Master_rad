@@ -20,6 +20,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import xlwt as xl
 import pickle
+import xlwt as xl
 from sklearn.metrics import accuracy_score
 
 df = pd.read_excel("Zastoji.xlsx", index_col = 0)

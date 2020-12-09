@@ -1,2 +1,2 @@
 # Master_rad
-MSTER RAR
+MSTER RAD

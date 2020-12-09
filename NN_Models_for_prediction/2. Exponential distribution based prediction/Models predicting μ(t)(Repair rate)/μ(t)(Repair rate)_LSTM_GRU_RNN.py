@@ -266,12 +266,12 @@ for seq_len in seq_length:
 			lr = 0.0001
 			
 			#Training and Validating RNN_model
-			rnn_model, rnn_training_loss = train( train_loader, lr, hid_dim,num_layers, model_type="RNN")
-			rnn_outputs, targets, rnn_test_loss = evaluate(rnn_model, test_loader)
+#			rnn_model, rnn_training_loss = train( train_loader, lr, hid_dim,num_layers, model_type="RNN")
+#			rnn_outputs, targets, rnn_test_loss = evaluate(rnn_model, test_loader)
             
 			#Training and Validating GRU_model
-			gru_model, gru_training_loss = train(train_loader, lr, hid_dim,num_layers, model_type="GRU")
-			gru_outputs, targets, gru_test_loss = evaluate(gru_model, test_loader)
+#			gru_model, gru_training_loss = train(train_loader, lr, hid_dim,num_layers, model_type="GRU")
+#			gru_outputs, targets, gru_test_loss = evaluate(gru_model, test_loader)
 #			PATH_gru = "modelRNN/2features predict 2 outputs GRU.pt"
             
 			#Training and Validating LSTM_model
@@ -285,20 +285,20 @@ for seq_len in seq_length:
             
 			'''Ime simulacije","Validation Loss", "Training L'''
 			#RNN
-			ws1.row(counter).write(0, simulation_name + "_" +'RNN')
-			ws1.row(counter).write(1, rnn_training_loss[-1])
-			ws1.row(counter).write(2, int(rnn_test_loss[-1]))
+#			ws1.row(counter).write(0, simulation_name + "_" +'RNN')
+#			ws1.row(counter).write(1, rnn_training_loss[-1])
+#			ws1.row(counter).write(2, int(rnn_test_loss[-1]))
 
 			#save model parametre RNN
-			torch.save(rnn_model, pathRNN)
+#			torch.save(rnn_model, pathRNN)
 			
 						#GRU
-			ws2.row(counter).write(0, simulation_name + "_" +'GRU')
-			ws2.row(counter).write(1, gru_training_loss[-1])
-			ws2.row(counter).write(2, int(gru_test_loss[-1]))
+#			ws2.row(counter).write(0, simulation_name + "_" +'GRU')
+#			ws2.row(counter).write(1, gru_training_loss[-1])
+#			ws2.row(counter).write(2, int(gru_test_loss[-1]))
 
 			#save model parametre GRU
-			torch.save(gru_model, pathGRU)
+#			torch.save(gru_model, pathGRU)
 			
 						#LSTM
 			ws3.row(counter).write(0, simulation_name + "_" +'LSTM')
